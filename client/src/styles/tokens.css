@@ -1,0 +1,80 @@
+:root {
+  /* palette — light */
+  --bg: #f6f6f8;
+  --bg-elevated: #ffffff;
+  --bg-sunken: #eef0f3;
+  --fg: #16181d;
+  --fg-secondary: #6b7280;
+  --fg-tertiary: #9ca3af;
+  --border: rgba(20, 22, 28, 0.08);
+  --border-strong: rgba(20, 22, 28, 0.14);
+  --shadow-card: 0 1px 2px rgba(16, 18, 24, 0.04), 0 4px 16px rgba(16, 18, 24, 0.05);
+  --shadow-pop: 0 8px 30px rgba(16, 18, 24, 0.16);
+
+  --accent: #6366f1;
+  --accent-soft: rgba(99, 102, 241, 0.12);
+  --accent-strong: #4f46e5;
+  --green: #10b981;
+  --green-soft: rgba(16, 185, 129, 0.12);
+  --red: #ef4444;
+  --red-soft: rgba(239, 68, 68, 0.12);
+  --amber: #f59e0b;
+  --amber-soft: rgba(245, 158, 11, 0.14);
+  --violet: #8b5cf6;
+
+  --radius-s: 10px;
+  --radius-m: 14px;
+  --radius-l: 18px;
+  --radius-xl: 24px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  --duration: 0.22s;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --nav-height: 68px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --shell-max: 560px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f0f11;
+    --bg-elevated: #18181b;
+    --bg-sunken: #131316;
+    --fg: #f4f4f5;
+    --fg-secondary: #a1a1aa;
+    --fg-tertiary: #71717a;
+    --border: rgba(244, 244, 245, 0.08);
+    --border-strong: rgba(244, 244, 245, 0.16);
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.35);
+    --shadow-pop: 0 8px 30px rgba(0, 0, 0, 0.5);
+    --accent: #818cf8;
+    --accent-soft: rgba(129, 140, 248, 0.16);
+    --accent-strong: #6366f1;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f0f11;
+  --bg-elevated: #18181b;
+  --bg-sunken: #131316;
+  --fg: #f4f4f5;
+  --fg-secondary: #a1a1aa;
+  --fg-tertiary: #71717a;
+  --border: rgba(244, 244, 245, 0.08);
+  --border-strong: rgba(244, 244, 245, 0.16);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --accent: #818cf8;
+  --accent-soft: rgba(129, 140, 248, 0.16);
+  --accent-strong: #6366f1;
+}
