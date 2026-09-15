@@ -15,10 +15,28 @@ function num(value, fallback) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+// Ensure the MongoDB URI always points at an explicit database. Atlas
+// "Connect" strings carry no database segment; without one the driver falls
+// back to the "test" database. Only applied when no database is present.
+function withDefaultDatabase(uri, fallback) {
+  if (!uri) return uri;
+  try {
+    const u = new URL(uri);
+    if ((u.protocol === "mongodb:" || u.protocol === "mongodb+srv:") && !u.pathname.slice(1)) {
+      u.pathname = `/${fallback}`;
+    }
+    return u.toString();
+  } catch {
+    return uri;
+  }
+}
+
+const defaultDatabase = process.env.MONGODB_DB || "vamshi";
+
 export const env = {
   port: num(process.env.PORT, 3001),
   nodeEnv: process.env.NODE_ENV || "development",
-  mongoUri: process.env.MONGODB_URI || "mongodb://localhost:27017/vault",
+  mongoUri: withDefaultDatabase(process.env.MONGODB_URI, defaultDatabase),
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   jwtAccessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
