@@ -41,8 +41,15 @@ export const env = {
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
   jwtAccessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "30d",
-  cookieSecure: process.env.COOKIE_SECURE === "true",
+  // Secure defaults to true in production (HTTPS) but can be forced off with COOKIE_SECURE=false (e.g. local HTTPS-less runs).
+  cookieSecure:
+    process.env.COOKIE_SECURE === "true" ||
+    (process.env.NODE_ENV === "production" && process.env.COOKIE_SECURE !== "false"),
   cookieSameSite: process.env.COOKIE_SAME_SITE || "lax",
+  // Partitioned (CHIPS): required for cross-site deployments (e.g. frontend and API on
+  // separate domains/subdomains under a public suffix, like *.onrender.com) where browsers
+  // block third-party cookies. Use "true" only when the frontend origin differs from the API origin.
+  cookiePartitioned: process.env.COOKIE_PARTITIONED === "true",
   clientOrigin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
   bootstrap: {
     name: process.env.BOOTSTRAP_NAME || "Me",

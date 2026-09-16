@@ -16,6 +16,7 @@ function cookieOptions(maxAgeMs) {
     httpOnly: true,
     secure: env.cookieSecure,
     sameSite: env.cookieSameSite,
+    partitioned: env.cookiePartitioned,
     maxAge: maxAgeMs,
     path: "/",
   };
@@ -73,8 +74,9 @@ export async function rotateRefresh(req, res) {
 }
 
 export function clearAuthCookies(res) {
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
+  const opts = cookieOptions(0);
+  res.clearCookie("accessToken", opts);
+  res.clearCookie("refreshToken", opts);
 }
 
 export async function revokeUserSessions(userId, exceptJti) {

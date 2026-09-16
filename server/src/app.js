@@ -83,12 +83,14 @@ export function createApp() {
     res.json({ ok: true, service: "vamshi-server" }),
   );
 
-  // serve built client in production
+  // Serve the built client from the API origin (same-origin deployment) whenever
+  // client/dist exists — this keeps auth cookies first-party, avoiding CORS and
+  // cross-site cookie restrictions entirely. Falls through for /api and /uploads.
   const clientDist = path.resolve(process.cwd(), "../client/dist");
-  if (env.nodeEnv === "production" && fs.existsSync(clientDist)) {
+  if (fs.existsSync(clientDist)) {
     app.use(express.static(clientDist));
     app.get("*", (_req, res, next) => {
-      if (_req.path.startsWith("/api")) return next();
+      if (_req.path.startsWith("/api") || _req.path.startsWith("/uploads")) return next();
       return res.sendFile(path.join(clientDist, "index.html"));
     });
   }
