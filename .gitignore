@@ -1,5 +1,7 @@
 node_modules/
 dist/
+!client/dist/
+!client/dist/**
 .env
 .env.*
 !.env.example
