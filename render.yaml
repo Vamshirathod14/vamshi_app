@@ -1,0 +1,42 @@
+# Render Blueprint (https://render.com/docs/blueprint-spec)
+# Deploys the Vamshi backend + built frontend on ONE origin (same-origin deployment).
+# The server serves client/dist, so auth cookies stay first-party — no CORS, no
+# cross-site/third-party cookie issues, works on iPhone Safari and all browsers.
+services:
+  - type: web
+    name: vamshi-server
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false # set to your production Atlas connection string (with db, e.g. .../vamshi?retryWrites=true&w=majority)
+      - key: MONGODB_DB
+        value: vamshi
+      - key: JWT_ACCESS_SECRET
+        sync: false # openssl rand -hex 48
+      - key: JWT_REFRESH_SECRET
+        sync: false # openssl rand -hex 48
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: COOKIE_SAME_SITE
+        value: lax # same-origin deployment
+      - key: CLIENT_ORIGIN
+        value: https://vamshi-app.onrender.com
+      - key: BOOTSTRAP_EMAIL
+        sync: false # replace demo credentials before public use
+      - key: BOOTSTRAP_PASSWORD
+        sync: false
+      - key: MAX_RECEIPT_SIZE_MB
+        value: "5"
+      # Web Push (VAPID) — optional; generate with: npx web-push generate-vapid-keys
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false

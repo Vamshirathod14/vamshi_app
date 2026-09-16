@@ -12,31 +12,56 @@ Recommended stack:
 
 ## 1. Architecture & Cookie Auth
 
-Auth uses HttpOnly cookies (`accessToken` + `refreshToken`, rotated) with
-`SameSite=Lax`. Safari on iPhone limits third-party cookies, so the frontend and
-API must appear **same-origin** to the browser.
+Auth uses HttpOnly cookies (`accessToken` + `refreshToken`, rotated). Cookie
+behaviour is browser-driven, so the frontend and API must be **same-origin**, or
+the cookies must be explicitly configured for cross-site use.
 
-Recommended: **Vercel rewrite proxy.** `client/vercel.json` forwards `/api/*`
-and `/uploads/*` server-side to the Render backend. The browser only ever talks
-to the Vercel domain, so cookies stay same-origin and `SameSite=Lax` works:
+**Known pitfall (verified in production, 2026):** Render subdomains like
+`myapp.onrender.com` and `myapp-frontend.onrender.com` are **cross-site**, not
+just cross-origin, because `onrender.com` is on the Public Suffix List. Cookies
+with `SameSite=Lax` sent by a cross-site API are **dropped by modern browsers**
+(third-party-cookie blocking), so login returns `200` with `Set-Cookie`, the
+cookie is never stored, every authenticated call returns `401` and the app falls
+back to the login screen. This happened on the original split Render deployment.
+
+### Option A — Same origin (recommended, verified)
+
+Let the backend serve the built frontend (`server/src/app.js` serves
+`client/dist` whenever it exists, plus SPA fallback). Everything lives on ONE
+origin, cookies are first-party (`SameSite=Lax` + `Secure` work everywhere,
+including iPhone Safari), no CORS at all.
 
 ```
-Browser ──→ Vercel (https://vamshi.vercel.app)
-                 │  /api/*  ,  /uploads/*  (server-side proxy)
-                 └──→ Render (https://vamshi-backend.onrender.com)
+Browser ──→ Render Web Service (https://vamshi-app.onrender.com)
+                 ├── /api/*  ,  /uploads/*   (API)
+                 └── /        (SPA from client/dist)
 MongoDB Atlas ◄────── Render
 ```
 
-With this setup `VITE_API_URL` stays **empty** (requests use relative `/api`).
+Setup: build the client during deploy (`npm run build` at the repo root,
+`render.yaml` included in this repo does this), set `NODE_ENV=production`,
+`COOKIE_SAME_SITE=lax`, `COOKIE_SECURE=true`, `CLIENT_ORIGIN=https://<render-host>`,
+and open the app at the backend URL.
 
-> **Before deploying**: edit `client/vercel.json` and replace
-> `https://vamshi-backend.onrender.com` (both rewrite rules) with your actual
-> Render URL. Your real host appears after step 6.
+### Option B — Split origins (works, verified; needs partitioned cookies)
 
-Alternative (no proxy): set `VITE_API_URL=https://<render-host>` at frontend
-build time, backend `CLIENT_ORIGIN=https://<vercel-host>` and
-`COOKIE_SAME_SITE=none` + `COOKIE_SECURE=true`. Cookies may be restricted on iOS
-Safari; the proxy approach is preferred.
+Frontend static site + separate API (the current live setup). Requests are
+cross-site. Required env on the API:
+
+- `COOKIE_SECURE=true`
+- `COOKIE_SAME_SITE=none`
+- `COOKIE_PARTITIONED=true` (CHIPS) — stores the auth cookies partitioned to the
+  frontend top-level site, so Chrome's third-party-cookie blocking still allows
+  the login session. Verified end-to-end in Chrome: login → `/api/auth/me` →
+  Dashboard.
+- `CLIENT_ORIGIN=https://<frontend-host>` (exact origin, no wildcard; must match).
+- Build the frontend with `VITE_API_URL=https://<api-host>`.
+
+`SameSite=None` without `Secure` is rejected by browsers; `Partitioned` without
+`SameSite=None; Secure` is also ignored — set all three.
+
+> **Prefer Option A.** It is the most robust across browsers and iOS, and this
+> repo is already wired for it (single `render.yaml` deploys it).
 
 ---
 
@@ -55,7 +80,8 @@ placeholders. **Never commit real values** (`.gitignore` excludes `.env*`).
 | `NODE_ENV` | ✅ | `production` |
 | `PORT` | | Render injects `PORT`; default `3001` |
 | `COOKIE_SECURE` | ✅ | `true` |
-| `COOKIE_SAME_SITE` | | `lax` (recommended) |
+| `COOKIE_SAME_SITE` | | `lax` (Option A, recommended) or `none` (Option B cross-site) |
+| `COOKIE_PARTITIONED` | | `true` only for Option B (cross-site split origins) |
 | `CLIENT_ORIGIN` | ✅ | `https://<your-vercel-domain>` |
 | `BOOTSTRAP_EMAIL` / `BOOTSTRAP_PASSWORD` | ⚠️ | Initial account created only when DB is empty. Use strong values, then change to real credentials before public use. |
 | `MAX_RECEIPT_SIZE_MB` | | default `5` |

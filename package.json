@@ -2,6 +2,10 @@
   "name": "vault-personal",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
   "description": "A private personal operating system for managing money, tasks, notes, reminders and goals.",
   "workspaces": [
     "server",
