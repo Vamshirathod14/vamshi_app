@@ -5,6 +5,9 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import path from "node:path";
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
+
+const here = path.dirname(fileURLToPath(import.meta.url));
 
 import { env } from "./config/env.js";
 import { apiLimiter } from "./middleware/rateLimit.js";
@@ -86,8 +89,13 @@ export function createApp() {
   // Serve the built client from the API origin (same-origin deployment) whenever
   // client/dist exists — this keeps auth cookies first-party, avoiding CORS and
   // cross-site cookie restrictions entirely. Falls through for /api and /uploads.
-  const clientDist = path.resolve(process.cwd(), "../client/dist");
-  if (fs.existsSync(clientDist)) {
+  // Resolved relative to this file so it works no matter what the process cwd is.
+  const clientDist = [
+    path.resolve(here, "../../client/dist"),
+    path.resolve(process.cwd(), "client/dist"),
+    path.resolve(process.cwd(), "../client/dist"),
+  ].find((p) => fs.existsSync(p));
+  if (clientDist) {
     app.use(express.static(clientDist));
     app.get("*", (_req, res, next) => {
       if (_req.path.startsWith("/api") || _req.path.startsWith("/uploads")) return next();
