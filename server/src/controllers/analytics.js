@@ -31,7 +31,7 @@ export const summary = asyncHandler(async (req, res) => {
   const { period = "month", from, to } = req.query;
   const { start, end } = rangeFor(period, from, to);
 
-  const [accounts, group] = await Promise.all([
+  const [accounts, group, unassignedAgg] = await Promise.all([
     Account.aggregate([{ $match: { userId: req.user._id } }, { $project: { name: 1, color: 1, icon: 1, balance: 1 } }]),
     Transaction.aggregate([
       {
@@ -50,13 +50,28 @@ export const summary = asyncHandler(async (req, res) => {
         },
       },
     ]),
+    Transaction.aggregate([
+      {
+        $match: { userId: req.user._id, accountId: null, fromAccountId: null, toAccountId: null },
+      },
+      {
+        $group: {
+          _id: null,
+          net: {
+            $sum: {
+              $cond: [{ $eq: ["$type", "income"] }, "$amount", { $cond: [{ $eq: ["$type", "expense"] }, { $multiply: ["$amount", -1] }, 0] }],
+            },
+          },
+        },
+      },
+    ]),
   ]);
 
   const g = group[0] || {};
   const income = roundMoney(g.income ?? 0);
   const expense = roundMoney(g.expense ?? 0);
   const totalBalance = roundMoney(
-    accounts.reduce((s, a) => s + a.balance, 0),
+    accounts.reduce((s, a) => s + a.balance, 0) + (unassignedAgg[0]?.net ?? 0),
   );
 
   return res.json({

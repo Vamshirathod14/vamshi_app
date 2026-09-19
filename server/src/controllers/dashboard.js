@@ -29,6 +29,7 @@ export const overview = asyncHandler(async (req, res) => {
     budgets,
     upcomingRecurring,
     unreadCount,
+    unassignedAgg,
   ] = await Promise.all([
     Account.find({ userId: uid }).sort({ createdAt: 1 }),
     Transaction.aggregate([
@@ -77,9 +78,26 @@ export const overview = asyncHandler(async (req, res) => {
       .sort({ nextRunDate: 1 })
       .limit(6),
     Notification.countDocuments({ userId: uid, read: false }),
+    Transaction.aggregate([
+      {
+        $match: { userId: uid, accountId: null, fromAccountId: null, toAccountId: null },
+      },
+      {
+        $group: {
+          _id: null,
+          net: {
+            $sum: {
+              $cond: [{ $eq: ["$type", "income"] }, "$amount", { $cond: [{ $eq: ["$type", "expense"] }, { $multiply: ["$amount", -1] }, 0] }],
+            },
+          },
+        },
+      },
+    ]),
   ]);
 
-  const totalBalance = roundMoney(accounts.reduce((s, a) => s + a.balance, 0));
+  const totalBalance = roundMoney(
+    accounts.reduce((s, a) => s + a.balance, 0) + (unassignedAgg[0]?.net ?? 0),
+  );
   const m = monthAgg[0] || {};
   const income = roundMoney(m.income ?? 0);
   const expenses = roundMoney(m.expenses ?? 0);
