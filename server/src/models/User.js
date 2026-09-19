@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema(
       summary: { type: Boolean, default: true },
     },
     pushSubscriptions: { type: [mongoose.Schema.Types.Mixed], default: [] },
+    defaultsSeeded: { type: Boolean, default: false },
 
     // Subscription (Vamshi V2). Status lifecycle:
     // inactive -> pending -> active -> (expired | cancelled)

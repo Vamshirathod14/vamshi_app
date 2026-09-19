@@ -107,6 +107,9 @@ export default function Register() {
             Create account
           </Button>
         </form>
+        <p className="auth-agree small muted">
+          By creating an account you agree to our <Link to="/terms">Terms &amp; Conditions</Link>.
+        </p>
         <p className="auth-switch">
           Already have an account? <Link to="/login">Sign in</Link>
         </p>

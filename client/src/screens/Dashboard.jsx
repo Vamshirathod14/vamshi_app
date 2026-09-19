@@ -94,45 +94,47 @@ export default function Dashboard() {
           </button>
         </div>
 
-        <div className="balance-card">
-          <div className="balance-label">Total Balance</div>
-          <div className="balance-amount">{formatINR(data.totalBalance)}</div>
-          <div className="balance-actions">
-            <Button variant="" onClick={() => openForm("expense")}>+ Expense</Button>
-            <Button variant="" onClick={() => openForm("income")}>+ Income</Button>
-            <Button variant="" onClick={() => navigate("/transactions")}>All Transactions</Button>
-          </div>
-        </div>
-
-        <div className="stat-3">
-          <div className="stat-cell">
-            <div className="s-label">Income</div>
-            <div className="s-value" style={{ color: "var(--green)" }}>{formatINR(data.month.income, { compact: true })}</div>
-          </div>
-          <div className="stat-cell">
-            <div className="s-label">Expenses</div>
-            <div className="s-value" style={{ color: "var(--red)" }}>{formatINR(data.month.expenses, { compact: true })}</div>
-          </div>
-          <div className="stat-cell">
-            <div className="s-label">Savings</div>
-            <div className="s-value" style={{ color: "var(--accent)" }}>{formatINR(data.month.savings, { compact: true })}</div>
-          </div>
-        </div>
-
-        <div style={{ marginTop: 12 }}>
-          <AdBanner slot="1234567890" />
-        </div>
-
-        <div style={{ marginTop: 16 }}>
-          <div className="today-spend">
-            <div className="chip green"><Plus size={18} /></div>
-            <div>
-              <div className="small muted">Today's spending</div>
-              <div className="today-amt">{formatINR(data.today.spent)}</div>
+        <div className="dash-top">
+          <div className="balance-card">
+            <div className="balance-label">Total Balance</div>
+            <div className="balance-amount">{formatINR(data.totalBalance)}</div>
+            <div className="balance-actions">
+              <Button variant="" onClick={() => openForm("expense")}>+ Expense</Button>
+              <Button variant="" onClick={() => openForm("income")}>+ Income</Button>
+              <Button variant="" onClick={() => navigate("/transactions")}>All Transactions</Button>
             </div>
-            {data.today.count > 0 && (
-              <div className="badge neutral" style={{ marginLeft: "auto" }}>{data.today.count} txns</div>
-            )}
+          </div>
+
+          <div className="dash-top-side">
+            <div className="stat-3">
+              <div className="stat-cell">
+                <div className="s-label">Income</div>
+                <div className="s-value" style={{ color: "var(--green)" }}>{formatINR(data.month.income, { compact: true })}</div>
+              </div>
+              <div className="stat-cell">
+                <div className="s-label">Expenses</div>
+                <div className="s-value" style={{ color: "var(--red)" }}>{formatINR(data.month.expenses, { compact: true })}</div>
+              </div>
+              <div className="stat-cell">
+                <div className="s-label">Savings</div>
+                <div className="s-value" style={{ color: "var(--accent)" }}>{formatINR(data.month.savings, { compact: true })}</div>
+              </div>
+            </div>
+
+            <div className="today-card">
+              <div className="today-spend">
+                <div className="chip green"><Plus size={18} /></div>
+                <div>
+                  <div className="small muted">Today's spending</div>
+                  <div className="today-amt">{formatINR(data.today.spent)}</div>
+                </div>
+                {data.today.count > 0 && (
+                  <div className="badge neutral" style={{ marginLeft: "auto" }}>{data.today.count} txns</div>
+                )}
+              </div>
+            </div>
+
+            <AdBanner slot="1234567890" />
           </div>
         </div>
 
@@ -161,6 +163,8 @@ export default function Dashboard() {
           </div>
         )}
 
+        <div className="dash-grid">
+          <div className="dash-col">
         {/* recent transactions */}
         <div className="section-title">
           <h3>Recent transactions</h3>
@@ -200,7 +204,9 @@ export default function Dashboard() {
             ))}
           </Card>
         )}
+        </div>
 
+        <div className="dash-col">
         {/* today's tasks */}
         <div className="section-title">
           <h3>Today's tasks</h3>
@@ -282,6 +288,8 @@ export default function Dashboard() {
             </Card>
           </>
         )}
+        </div>
+        </div>
       </div>
 
       <QuickAdd open={addOpen} onClose={() => setAddOpen(false)} onSelect={openForm} />

@@ -2,6 +2,7 @@
 @import "./base.css";
 @import "./components.css";
 @import "./pages.css";
+@import "./desktop.css";
 
 * {
   box-sizing: border-box;

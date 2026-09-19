@@ -1,7 +1,8 @@
 import { z } from "zod";
 import { User } from "../models/User.js";
 import { SessionToken } from "../models/Token.js";
-import {
+import
+{
   issueAccessToken,
   issueRefreshToken,
   rotateRefresh,
@@ -9,6 +10,7 @@ import {
   revokeUserSessions,
 } from "../services/token.js";
 import { ApiError, asyncHandler } from "../middleware/handle.js";
+import { ensureUserDefaults } from "../config/seed.js";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -44,6 +46,9 @@ export const register = asyncHandler(async (req, res) => {
   const user = new User({ name: data.name, email: data.email.toLowerCase() });
   await user.setPassword(data.password);
   await user.save();
+  await ensureUserDefaults(user._id);
+  user.defaultsSeeded = true;
+  await user.save();
   await issueAccessToken(user, req);
   await issueRefreshToken(user, req);
   return res.status(201).json({ user: user.toSafe() });
@@ -60,6 +65,13 @@ export const refresh = asyncHandler(async (req, res) => {
 });
 
 export const me = asyncHandler(async (req, res) => {
+  // Lazy self-heal: accounts created before default seeding got no starting
+  // account/categories. Backfill once so the first expense/income works.
+  if (!req.user.defaultsSeeded) {
+    await ensureUserDefaults(req.user._id);
+    req.user.defaultsSeeded = true;
+    await req.user.save();
+  }
   return res.json({ user: req.user.toSafe() });
 });
 

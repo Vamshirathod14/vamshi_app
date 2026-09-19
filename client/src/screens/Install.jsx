@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Download, Smartphone, Share, Chrome } from "lucide-react";
+import { ChevronLeft, Download, Smartphone, Share, Chrome, MonitorDown } from "lucide-react";
 import { Button, Chip } from "../components/UI.jsx";
 
 function isIOS() {
@@ -107,6 +107,32 @@ export default function Install() {
           </div>
         </div>
       ) : (
+        <>
+        <div className="install-steps">
+          <div className="group-label">On Desktop (Chrome / Edge)</div>
+          <div className="step-card">
+            <div className="step-num">1</div>
+            <div className="step-body">
+              <div className="step-title">Open the website</div>
+              <div className="small muted">Visit Vamshi in Chrome or Edge on your computer.</div>
+            </div>
+          </div>
+          <div className="step-card">
+            <div className="step-num">2</div>
+            <div className="step-body">
+              <div className="step-title">Click the install icon</div>
+              <div className="small muted">Tap <MonitorDown size={13} style={{ verticalAlign: "-2px" }} /> in the address bar, or the ⋮ menu → <b>Install&nbsp;Vamshi</b> (or <b>Cast, save and share</b> → <b>Install page as app</b> in Edge).</div>
+            </div>
+          </div>
+          <div className="step-card">
+            <div className="step-num">3</div>
+            <div className="step-body">
+              <div className="step-title">Click Install</div>
+              <div className="small muted">Confirm and Vamshi opens in its own app window, ready offline.</div>
+            </div>
+          </div>
+        </div>
+
         <div className="install-steps">
           <div className="group-label">On Android</div>
           <div className="step-card">
@@ -131,6 +157,7 @@ export default function Install() {
             </div>
           </div>
         </div>
+        </>
       )}
 
       <p className="small muted" style={{ textAlign: "center", marginTop: 16 }}>

@@ -26,7 +26,7 @@ const DEFAULT_SOURCES = [
   { name: "Other", emoji: "💰", color: "#38bdf8", type: "income" },
 ];
 
-async function seedDefaults(userId) {
+async function seedCategoryDefaults(userId) {
   if ((await Category.countDocuments({ userId })) > 0) return;
   await Category.insertMany(
     [...DEFAULT_CATEGORIES, ...DEFAULT_SOURCES].map((c, i) => ({
@@ -38,22 +38,30 @@ async function seedDefaults(userId) {
   );
 }
 
+// Gives every user a working starting point: a default "Cash" account and the
+// standard category list. Called at registration and lazily on login for
+// accounts created before this existed. New users can immediately add income
+// and expenses without hitting "Please select an account."
+export async function ensureUserDefaults(userId) {
+  await seedCategoryDefaults(userId);
+  if ((await Account.countDocuments({ userId })) === 0) {
+    await Account.create({
+      userId,
+      name: "Cash",
+      type: "cash",
+      balance: 0,
+      isDefault: true,
+    });
+  }
+}
+
 async function seedBootstrap() {
   const existing = await User.findOne({ role: "user" }).collation({
     locale: "en",
     strength: 2,
   });
   if (existing) {
-    await seedDefaults(existing._id);
-    if ((await Account.countDocuments({ userId: existing._id })) === 0) {
-      await Account.create({
-        userId: existing._id,
-        name: "Cash",
-        type: "cash",
-        balance: 0,
-        isDefault: true,
-      });
-    }
+    await ensureUserDefaults(existing._id);
     return;
   }
 
@@ -65,14 +73,7 @@ async function seedBootstrap() {
   await user.setPassword(password);
   await user.save();
 
-  await seedDefaults(user._id);
-  await Account.create({
-    userId: user._id,
-    name: "Cash",
-    type: "cash",
-    balance: 0,
-    isDefault: true,
-  });
+  await ensureUserDefaults(user._id);
 
   console.log(
     `[seed] Bootstrapped demo user: ${env.bootstrap.email} (password: ${password})`,

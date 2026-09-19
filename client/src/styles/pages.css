@@ -1,4 +1,14 @@
 /* ============ Auth ============ */
+.auth-agree {
+  margin: var(--space-4) 0 0;
+  line-height: 1.5;
+}
+.auth-agree a {
+  color: var(--accent);
+  font-weight: 600;
+}
+.auth-agree a:hover { text-decoration: underline; }
+
 .auth-wrap {
   min-height: 100%;
   display: flex;
@@ -38,6 +48,18 @@
 .auth-logo h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
 .auth-card h2 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.01em; }
 .auth-sub { color: var(--fg-secondary); font-size: 14px; margin: 0 0 var(--space-6); }
+
+/* ============ Terms & Conditions ============ */
+.terms-card h2 { font-size: 24px; }
+.terms-body { margin-top: var(--space-5); }
+.terms-body section {
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+.terms-body section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.terms-body h4 { margin: 0 0 6px; font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
+.terms-body p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--fg-secondary); }
 
 /* ============ Dashboard ============ */
 .greet-row {

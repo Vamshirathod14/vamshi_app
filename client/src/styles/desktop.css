@@ -1,0 +1,173 @@
+/* ============================================================
+   Desktop / website view — kicks in on screens wider than 992px.
+   Mobile-first: everything below stays the phone-frame PWA.
+   ============================================================ */
+
+.side-nav {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  /* ---- shell: full-width grid with a left sidebar ---- */
+  .app {
+    max-width: none;
+    display: grid;
+    grid-template-columns: 252px minmax(0, 1fr);
+    min-height: 100dvh;
+    padding-bottom: 0;
+  }
+
+  .bottom-nav {
+    display: none;
+  }
+
+  .app-main {
+    min-width: 0;
+  }
+
+  .page {
+    padding: var(--space-7) var(--space-8) var(--space-12);
+    max-width: 1180px;
+    width: 100%;
+  }
+
+  /* ---- sidebar ---- */
+  .side-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    padding: var(--space-6) var(--space-4) var(--space-5);
+    border-right: 1px solid var(--border);
+    background: var(--bg-elevated);
+    overflow-y: auto;
+  }
+
+  .side-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 10px;
+  }
+  .side-brand .logo-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 20px;
+    box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+  }
+  .side-brand-name { font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+  .side-brand-tag { font-size: 11.5px; color: var(--fg-secondary); }
+
+  .side-links {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .side-link {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 12px;
+    border-radius: var(--radius-m);
+    background: none;
+    border: none;
+    color: var(--fg-secondary);
+    font-size: 14.5px;
+    font-weight: 600;
+    width: 100%;
+    text-align: left;
+    transition: background 0.15s var(--ease), color 0.15s var(--ease);
+  }
+  .side-link:hover { background: var(--bg-sunken); color: var(--fg); }
+  .side-link.active { background: var(--accent-soft); color: var(--accent); }
+
+  .side-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: var(--radius-l);
+    background: var(--accent);
+    color: #fff;
+    font-weight: 650;
+    font-size: 15px;
+    box-shadow: 0 8px 22px rgba(99, 102, 241, 0.35);
+    transition: transform 0.15s var(--ease);
+  }
+  .side-add:hover { transform: translateY(-1px); }
+  .side-add:active { transform: scale(0.98); }
+
+  .side-foot {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-top: 1px solid var(--border);
+    padding-top: var(--space-3);
+  }
+  .side-link-sm {
+    justify-content: flex-start;
+    padding: 9px 12px;
+    font-size: 13.5px;
+    color: var(--fg-tertiary);
+    font-weight: 550;
+  }
+
+  /* ---- dashboard: website-style columns ---- */
+  .dash-top {
+    display: grid;
+    grid-template-columns: 1.45fr 1fr;
+    gap: var(--space-5);
+    align-items: stretch;
+    margin-bottom: var(--space-6);
+  }
+  .balance-card { height: 100%; }
+  .dash-top-side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .today-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-l);
+    box-shadow: var(--shadow-card);
+  }
+  .today-card .today-spend { margin: 0; padding: var(--space-4) var(--space-5); }
+
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    align-items: start;
+    margin-top: var(--space-6);
+  }
+  .dash-col { min-width: 0; }
+
+  /* ---- auth ---- */
+  .auth-card { max-width: 440px; }
+
+  .terms-card {
+    max-width: 760px;
+    max-height: calc(100dvh - var(--space-12));
+    overflow-y: auto;
+  }
+}
+
+@media (min-width: 1280px) {
+  .page { max-width: 1280px; }
+  .dash-top { grid-template-columns: 1.5fr 1fr; }
+}

@@ -6,6 +6,7 @@ import { ToastProvider } from "./context/ToastContext.jsx";
 
 const Login = lazy(() => import("./screens/Login.jsx"));
 const Register = lazy(() => import("./screens/Register.jsx"));
+const Terms = lazy(() => import("./screens/Terms.jsx"));
 const Subscription = lazy(() => import("./screens/Subscription.jsx"));
 const Install = lazy(() => import("./screens/Install.jsx"));
 const Account = lazy(() => import("./screens/Account.jsx"));
@@ -75,6 +76,7 @@ function Router() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </Suspense>
@@ -90,6 +92,7 @@ function Router() {
           {/* Account-level pages — always reachable, even when not subscribed */}
           <Route path="/subscription" element={<Subscription />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/terms" element={<Terms />} />
           {user.role === "admin" && <Route path="/admin" element={<Admin />} />}
 
           {/* Premium features (currently FREE for everyone) */}

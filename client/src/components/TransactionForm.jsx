@@ -224,17 +224,23 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
               </div>
             </Field>
             <Field label="Account">
-              <div className="chip-grid">
-                {accounts.map((a) => (
-                  <ChipItem
-                    key={a._id}
-                    active={accountId === a._id}
-                    onClick={() => setAccountId(a._id)}
-                    emoji={a.type === "cash" ? "💵" : a.type === "bank" ? "🏦" : "💳"}
-                    label={a.name}
-                  />
-                ))}
-              </div>
+              {accounts.length === 0 ? (
+                <div className="small muted" style={{ color: "var(--red)", marginTop: 4 }}>
+                  No accounts yet. Create one under Money → Accounts first.
+                </div>
+              ) : (
+                <div className="chip-grid">
+                  {accounts.map((a) => (
+                    <ChipItem
+                      key={a._id}
+                      active={accountId === a._id}
+                      onClick={() => setAccountId(a._id)}
+                      emoji={a.type === "cash" ? "💵" : a.type === "bank" ? "🏦" : "💳"}
+                      label={a.name}
+                    />
+                  ))}
+                </div>
+              )}
             </Field>
             <Field label="Payment method">
               <div className="chip-grid">
@@ -268,17 +274,23 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
               </div>
             </Field>
             <Field label="Account">
-              <div className="chip-grid">
-                {accounts.map((a) => (
-                  <ChipItem
-                    key={a._id}
-                    active={accountId === a._id}
-                    onClick={() => setAccountId(a._id)}
-                    emoji={a.type === "cash" ? "💵" : a.type === "bank" ? "🏦" : "💳"}
-                    label={a.name}
-                  />
-                ))}
-              </div>
+              {accounts.length === 0 ? (
+                <div className="small muted" style={{ color: "var(--red)", marginTop: 4 }}>
+                  No accounts yet. Create one under Money → Accounts first.
+                </div>
+              ) : (
+                <div className="chip-grid">
+                  {accounts.map((a) => (
+                    <ChipItem
+                      key={a._id}
+                      active={accountId === a._id}
+                      onClick={() => setAccountId(a._id)}
+                      emoji={a.type === "cash" ? "💵" : a.type === "bank" ? "🏦" : "💳"}
+                      label={a.name}
+                    />
+                  ))}
+                </div>
+              )}
             </Field>
           </>
         )}
