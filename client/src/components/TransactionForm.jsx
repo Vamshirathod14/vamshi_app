@@ -84,11 +84,11 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
       const body = { type, amount: val, date, time };
       if (type === "expense") {
         body.categoryId = categoryId || undefined;
-        body.accountId = accountId;
+        if (accountId) body.accountId = accountId;
         body.paymentMethod = paymentMethod;
       } else if (type === "income") {
         body.source = source || "Other";
-        body.accountId = accountId;
+        if (accountId) body.accountId = accountId;
         body.paymentMethod = paymentMethod;
       } else {
         body.fromAccountId = fromAccountId;

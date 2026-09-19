@@ -70,8 +70,22 @@
   .side-links {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     flex: 1;
+    overflow-y: auto;
+  }
+  .side-group-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-tertiary);
+    margin: var(--space-4) 10px 2px;
+  }
+  .side-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
 
   .side-link {

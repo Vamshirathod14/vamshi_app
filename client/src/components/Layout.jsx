@@ -1,8 +1,75 @@
 import { NavLink, Link, useLocation } from "react-router-dom";
-import { Home, BarChart3, Plus, Target, Menu, Download, ScrollText } from "lucide-react";
+import {
+  Home,
+  BarChart3,
+  Plus,
+  Target,
+  Menu,
+  Download,
+  ScrollText,
+  ArrowRightLeft,
+  Wallet,
+  PiggyBank,
+  Repeat,
+  CheckSquare,
+  StickyNote,
+  Bell,
+  BellRing,
+  UserRound,
+  Database,
+  Settings,
+} from "lucide-react";
+
+const PRIMARY = [
+  { to: "/", icon: Home, label: "Home", end: true },
+  { to: "/analytics", icon: BarChart3, label: "Analytics" },
+  { to: "/goals", icon: Target, label: "Goals" },
+];
+
+const MONEY = [
+  { to: "/transactions", icon: ArrowRightLeft, label: "Transactions" },
+  { to: "/accounts", icon: Wallet, label: "Accounts" },
+  { to: "/budgets", icon: PiggyBank, label: "Budgets" },
+  { to: "/recurring", icon: Repeat, label: "Recurring" },
+];
+
+const PRODUCTIVITY = [
+  { to: "/tasks", icon: CheckSquare, label: "Tasks" },
+  { to: "/notes", icon: StickyNote, label: "Notes" },
+  { to: "/reminders", icon: Bell, label: "Reminders" },
+  { to: "/notifications", icon: BellRing, label: "Notifications" },
+];
+
+const ACCOUNT_LINKS = [
+  { to: "/account", icon: UserRound, label: "Account" },
+  { to: "/data", icon: Database, label: "Data & Backup" },
+  { to: "/settings", icon: Settings, label: "Settings" },
+];
+
+function SideLink({ to, icon: Icon, label, end }) {
+  return (
+    <NavLink to={to} end={end} className={({ isActive }) => `side-link ${isActive ? "active" : ""}`}>
+      <Icon size={18} /> <span>{label}</span>
+    </NavLink>
+  );
+}
+
+function SideGroup({ title, items }) {
+  return (
+    <>
+      <div className="side-group-label">{title}</div>
+      <div className="side-group">
+        {items.map((item) => (
+          <SideLink key={item.to} {...item} />
+        ))}
+      </div>
+    </>
+  );
+}
 
 export default function Layout({ children, onOpenAdd }) {
   const location = useLocation();
+  const moreActive = !["/", "/analytics", "/goals"].includes(location.pathname);
 
   return (
     <div className="app">
@@ -15,26 +82,24 @@ export default function Layout({ children, onOpenAdd }) {
           </div>
         </Link>
 
-        <nav className="side-links">
-          <NavLink to="/" end className={({ isActive }) => `side-link ${isActive ? "active" : ""}`}>
-            <Home size={18} /> Home
-          </NavLink>
-          <NavLink to="/analytics" className={({ isActive }) => `side-link ${isActive ? "active" : ""}`}>
-            <BarChart3 size={18} /> Analytics
-          </NavLink>
-          <NavLink to="/goals" className={({ isActive }) => `side-link ${isActive ? "active" : ""}`}>
-            <Target size={18} /> Goals
-          </NavLink>
-          <NavLink to="/more" className={({ isActive }) => `side-link ${isActive || !["/", "/analytics", "/goals"].includes(location.pathname) ? "active" : ""}`}>
-            <Menu size={18} /> More
+        <div className="side-links">
+          {PRIMARY.map((item) => (
+            <SideLink key={item.to} {...item} />
+          ))}
+          <NavLink to="/more" className={`side-link ${moreActive ? "active" : ""}`}>
+            <Menu size={18} /> <span>More</span>
           </NavLink>
 
-          <div style={{ marginTop: 8 }}>
+          <SideGroup title="Money" items={MONEY} />
+          <SideGroup title="Productivity" items={PRODUCTIVITY} />
+          <SideGroup title="Data & Settings" items={ACCOUNT_LINKS} />
+
+          <div style={{ margin: "8px 0 4px" }}>
             <button className="side-add" onClick={onOpenAdd}>
               <Plus size={19} strokeWidth={2.5} /> Add
             </button>
           </div>
-        </nav>
+        </div>
 
         <div className="side-foot">
           <NavLink to="/install" className={({ isActive }) => `side-link side-link-sm ${isActive ? "active" : ""}`}>
@@ -67,7 +132,7 @@ export default function Layout({ children, onOpenAdd }) {
             <Target size={22} />
             <span>Goals</span>
           </NavLink>
-          <NavLink to="/more" className={({ isActive }) => `nav-item ${isActive || (!["/", "/analytics", "/goals"].includes(location.pathname)) ? "active" : ""}`}>
+          <NavLink to="/more" className={({ isActive }) => `nav-item ${isActive || moreActive ? "active" : ""}`}>
             <Menu size={22} />
             <span>More</span>
           </NavLink>

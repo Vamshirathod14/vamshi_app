@@ -7,25 +7,27 @@ import { roundMoney, addMoney, subtractMoney } from "../utils/money.js";
 import { toDateOnly, combineDateTime, endOfDay } from "../utils/date.js";
 
 const idRef = z.string().regex(/^[a-f\d]{24}$/i, "Invalid id");
+// Optional id fields: clients may send "" when no account/category is chosen.
+const optId = z.union([idRef, z.literal("")]).optional().nullable();
 
 const expenseSchema = z.object({
   type: z.literal("expense"),
   amount: z.number().positive().max(100_000_000),
-  categoryId: idRef.optional().nullable(),
-  accountId: idRef.optional().nullable(),
+  categoryId: optId,
+  accountId: optId,
   paymentMethod: z.enum(PAYMENT_METHODS).default("other"),
   description: z.string().max(200).optional().default(""),
   note: z.string().max(1000).optional().default(""),
   date: z.union([z.string(), z.date()]).default(() => new Date()),
   time: z.string().nullable().optional(),
-  receiptId: idRef.optional().nullable(),
+  receiptId: optId,
 });
 
 const incomeSchema = z.object({
   type: z.literal("income"),
   amount: z.number().positive().max(100_000_000),
   source: z.string().max(60).optional().default("Other"),
-  accountId: idRef.optional().nullable(),
+  accountId: optId,
   paymentMethod: z.enum(PAYMENT_METHODS).optional(),
   description: z.string().max(200).optional().default(""),
   note: z.string().max(1000).optional().default(""),
@@ -51,10 +53,10 @@ const createSchema = z.discriminatedUnion("type", [
 
 const updateSchema = z.object({
   amount: z.number().positive().max(100_000_000).optional(),
-  categoryId: idRef.optional().nullable(),
-  accountId: idRef.optional().nullable(),
-  fromAccountId: idRef.optional().nullable(),
-  toAccountId: idRef.optional().nullable(),
+  categoryId: optId,
+  accountId: optId,
+  fromAccountId: optId,
+  toAccountId: optId,
   paymentMethod: z.enum(PAYMENT_METHODS).optional(),
   source: z.string().max(60).optional().nullable(),
   description: z.string().max(200).optional(),
