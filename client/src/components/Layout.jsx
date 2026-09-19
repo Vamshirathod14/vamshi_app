@@ -7,6 +7,7 @@ import {
   Menu,
   Download,
   ScrollText,
+  Lock,
   ArrowRightLeft,
   Wallet,
   PiggyBank,
@@ -106,7 +107,10 @@ export default function Layout({ children, onOpenAdd }) {
             <Download size={15} /> Install app
           </NavLink>
           <Link to="/terms" className="side-link side-link-sm">
-            <ScrollText size={15} /> Terms & Conditions
+            <ScrollText size={15} /> Terms &amp; Conditions
+          </Link>
+          <Link to="/privacy-policy" className="side-link side-link-sm">
+            <Lock size={15} /> Privacy Policy
           </Link>
         </div>
       </aside>

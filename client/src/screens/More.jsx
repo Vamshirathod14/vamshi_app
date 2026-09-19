@@ -16,6 +16,7 @@ import {
   Download,
   ShieldCheck,
   ScrollText,
+  Lock,
 } from "lucide-react";
 import Layout from "../components/Layout.jsx";
 import QuickAdd from "../components/QuickAdd.jsx";
@@ -55,6 +56,7 @@ export default function More() {
     { to: "/install", icon: <Download size={17} />, color: "var(--green)", title: "Install app", sub: "Add Vamshi to your home screen" },
     { to: "/settings", icon: <Settings size={17} />, color: "var(--fg-secondary)", title: "Settings", sub: "Preferences & security" },
     { to: "/terms", icon: <ScrollText size={17} />, color: "var(--fg-tertiary)", title: "Terms & Conditions", sub: "Terms of use & conditions" },
+    { to: "/privacy-policy", icon: <Lock size={17} />, color: "var(--fg-tertiary)", title: "Privacy Policy", sub: "How we handle your data" },
   ];
 
   if (user?.role === "admin") {

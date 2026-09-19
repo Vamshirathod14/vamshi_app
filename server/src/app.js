@@ -41,6 +41,40 @@ export function createApp() {
   app.use(
     helmet({
       crossOriginResourcePolicy: { policy: "cross-origin" },
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          // Allow Google AdSense to load and serve ads on the page.
+          scriptSrc: [
+            "'self'",
+            "https://pagead2.googlesyndication.com",
+            "https://*.googlesyndication.com",
+            "https://www.googletagmanager.com",
+          ],
+          imgSrc: [
+            "'self'",
+            "data:",
+            "https://pagead2.googlesyndication.com",
+            "https://*.googlesyndication.com",
+            "https://googleads.g.doubleclick.net",
+            "https://*.doubleclick.net",
+            "https://www.google.com",
+            "https://*.google.com",
+          ],
+          frameSrc: [
+            "https://googleads.g.doubleclick.net",
+            "https://*.googlesyndication.com",
+            "https://*.doubleclick.net",
+          ],
+          connectSrc: [
+            "'self'",
+            "https://www.google.com",
+            "https://*.google.com",
+            "https://*.googleapis.com",
+            "https://*.googlesyndication.com",
+          ],
+        },
+      },
     }),
   );
 

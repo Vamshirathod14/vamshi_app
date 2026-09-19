@@ -8,6 +8,10 @@
   font-weight: 600;
 }
 .auth-agree a:hover { text-decoration: underline; }
+.auth-agree .sep {
+  margin: 0 10px;
+  color: var(--fg-tertiary);
+}
 
 .auth-wrap {
   min-height: 100%;

@@ -37,30 +37,45 @@ self.addEventListener("fetch", (event) => {
   // Navigation requests: network-first, fall back to cached shell.
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((cache) => cache.put("/", copy));
-          return res;
-        })
-        .catch(() => caches.match("/"))
+      (async () => {
+        try {
+          const res = await fetch(request);
+          if (res && res.ok) {
+            const copy = res.clone();
+            caches.open(CACHE).then((cache) => cache.put("/", copy));
+            return res;
+          }
+          if (res) return res;
+        } catch {
+          // network failure — fall through to cache
+        }
+        const shell =
+          (await caches.match("/")) || (await caches.match("/index.html"));
+        if (shell) return shell;
+        return new Response(
+          "<!doctype html><html><head><meta charset='utf-8'><title>Vamshi</title></head><body style='font-family:system-ui;padding:2rem;text-align:center'><h2>You're offline</h2><p>Check your connection and try again.</p></body></html>",
+          { headers: { "Content-Type": "text/html; charset=utf-8" } },
+        );
+      })(),
     );
     return;
   }
 
   // Everything else: stale-while-revalidate.
   event.respondWith(
-    caches.match(request).then((cached) => {
-      const network = fetch(request)
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE).then((cache) => cache.put(request, copy));
-          }
-          return res;
-        })
-        .catch(() => cached);
-      return cached || network;
-    })
+    (async () => {
+      const cached = await caches.match(request);
+      try {
+        const res = await fetch(request);
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((cache) => cache.put(request, copy));
+        }
+        return res;
+      } catch {
+        if (cached) return cached;
+        return Response.error();
+      }
+    })(),
   );
 });

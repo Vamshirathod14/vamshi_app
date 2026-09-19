@@ -65,7 +65,9 @@ export default function Login() {
           </Button>
         </form>
         <p className="auth-agree small muted">
-          By signing in you agree to our <Link to="/terms">Terms &amp; Conditions</Link>.
+          By signing in you agree to our <Link to="/terms">Terms &amp; Conditions</Link>
+          <span className="sep">|</span>
+          <Link to="/privacy-policy">Privacy Policy</Link>
         </p>
         <p className="auth-switch">
           New here? <Link to="/register">Create an account</Link>
