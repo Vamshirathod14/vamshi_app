@@ -140,13 +140,8 @@
     flex-direction: column;
     gap: var(--space-4);
   }
-  .today-card {
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-l);
-    box-shadow: var(--shadow-card);
-  }
-  .today-card .today-spend { margin: 0; padding: var(--space-4) var(--space-5); }
+  .dash-top-side .stat-3 { margin-top: 0; }
+  .today-card { margin: 0; }
 
   .dash-grid {
     display: grid;

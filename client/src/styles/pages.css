@@ -72,28 +72,39 @@
 .greet .emoji { margin-right: 4px; }
 
 .balance-card {
-  background: linear-gradient(135deg, #6d6af5 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #0f766e 0%, #059669 50%, #10b981 100%);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   color: #fff;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.32);
+}
+.balance-card::before {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.16), transparent 60%);
+  top: -130px;
+  right: -90px;
 }
 .balance-card::after {
   content: "";
   position: absolute;
-  width: 220px;
-  height: 220px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  top: -90px;
-  right: -60px;
+  border: 20px solid rgba(255, 255, 255, 0.06);
+  bottom: -70px;
+  left: -36px;
 }
 .balance-label { font-size: 13px; opacity: 0.85; font-weight: 500; }
 .balance-amount { font-size: 38px; font-weight: 700; letter-spacing: -0.03em; margin-top: 4px; font-variant-numeric: tabular-nums; }
 .balance-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
   margin-top: var(--space-4);
   position: relative;
@@ -134,6 +145,7 @@
   gap: var(--space-4);
 }
 .today-spend .today-amt { font-size: 22px; font-weight: 700; }
+.today-card { margin-top: var(--space-4); }
 
 .section-title {
   display: flex;
@@ -697,6 +709,7 @@
   flex-direction: column;
   align-items: center;
   overflow: hidden;
+  margin-top: var(--space-4);
 }
 .ad-label {
   font-size: 10px;
