@@ -77,9 +77,6 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
         setAccountError("Cannot transfer to the same account.");
         return;
       }
-    } else if (!accountId) {
-      push("Please select an account.", "error");
-      return;
     }
 
     setLoading(true);
@@ -223,12 +220,8 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
                 )}
               </div>
             </Field>
-            <Field label="Account">
-              {accounts.length === 0 ? (
-                <div className="small muted" style={{ color: "var(--red)", marginTop: 4 }}>
-                  No accounts yet. Create one under Money → Accounts first.
-                </div>
-              ) : (
+            {accounts.length > 0 && (
+              <Field label="Account">
                 <div className="chip-grid">
                   {accounts.map((a) => (
                     <ChipItem
@@ -240,8 +233,8 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
                     />
                   ))}
                 </div>
-              )}
-            </Field>
+              </Field>
+            )}
             <Field label="Payment method">
               <div className="chip-grid">
                 {PAYMENT_OPTIONS.map((m) => (
@@ -273,12 +266,8 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
                 ))}
               </div>
             </Field>
-            <Field label="Account">
-              {accounts.length === 0 ? (
-                <div className="small muted" style={{ color: "var(--red)", marginTop: 4 }}>
-                  No accounts yet. Create one under Money → Accounts first.
-                </div>
-              ) : (
+            {accounts.length > 0 && (
+              <Field label="Account">
                 <div className="chip-grid">
                   {accounts.map((a) => (
                     <ChipItem
@@ -290,8 +279,8 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
                     />
                   ))}
                 </div>
-              )}
-            </Field>
+              </Field>
+            )}
           </>
         )}
 

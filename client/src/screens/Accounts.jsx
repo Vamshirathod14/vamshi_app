@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, ChevronLeft, Trash2 } from "lucide-react";
 import { api } from "../api/client.js";
-import { useData } from "../context/DataContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import Layout from "../components/Layout.jsx";
 import AccountForm from "../components/AccountForm.jsx";
@@ -19,7 +18,6 @@ const EMOJI = { cash: "💵", bank: "🏦", card: "💳", investment: "📈" };
 
 export default function Accounts() {
   const navigate = useNavigate();
-  const { colorsKey } = useData();
   const { push } = useToast();
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -88,7 +86,7 @@ export default function Accounts() {
           <div className="list-card">
             {accounts.map((a) => (
               <div key={a._id} className="list-row">
-                <div className="set-ico" style={{ minWidth: 40, height: 40, background: `${colorsKey[a.color] || "var(--bg-sunken)"}20` }}>
+                <div className="set-ico" style={{ minWidth: 40, height: 40, background: a.color ? `${a.color}20` : "var(--bg-sunken)" }}>
                   {EMOJI[a.type] || "🏦"}
                 </div>
                 <div style={{ flex: 1 }}>

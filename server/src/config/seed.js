@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { User } from "../models/User.js";
-import { Account } from "../models/Account.js";
 import { Category } from "../models/Category.js";
 import { env } from "./env.js";
 
@@ -38,21 +37,11 @@ async function seedCategoryDefaults(userId) {
   );
 }
 
-// Gives every user a working starting point: a default "Cash" account and the
-// standard category list. Called at registration and lazily on login for
-// accounts created before this existed. New users can immediately add income
-// and expenses without hitting "Please select an account."
+// Gives every user a working starting point: the standard category list, so a
+// new user can immediately add income and expenses on their own. Accounts are
+// NOT auto-created — income/expense work with zero accounts for now.
 export async function ensureUserDefaults(userId) {
   await seedCategoryDefaults(userId);
-  if ((await Account.countDocuments({ userId })) === 0) {
-    await Account.create({
-      userId,
-      name: "Cash",
-      type: "cash",
-      balance: 0,
-      isDefault: true,
-    });
-  }
 }
 
 async function seedBootstrap() {
