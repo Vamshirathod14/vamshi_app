@@ -2,6 +2,7 @@ import { Router } from "express";
 import multer from "multer";
 import { upload, attach, download, remove, ensureUploadDir } from "../controllers/receipts.js";
 import { protect } from "../middleware/auth.js";
+import { requireActiveSubscription } from "../middleware/subscription.js";
 import { env } from "../config/env.js";
 import { uploadLimiter } from "../middleware/rateLimit.js";
 
@@ -25,6 +26,7 @@ const uploadMiddleware = multer({
 
 const router = Router();
 router.use(protect);
+router.use(requireActiveSubscription);
 router.post("/", uploadLimiter, uploadMiddleware.single("receipt"), upload);
 router.post("/:id/attach", attach);
 router.get("/:id/download", download);

@@ -474,3 +474,215 @@
   padding: 8px 0;
   cursor: pointer;
 }
+
+/* ============ Auth switch (login/register) ============ */
+.auth-switch {
+  margin: var(--space-4) 0 0;
+  font-size: 14px;
+  color: var(--fg-secondary);
+  text-align: center;
+}
+.auth-switch a { color: var(--accent); font-weight: 600; }
+
+/* ============ Subscription ============ */
+.sub-page { background: var(--bg); min-height: 100%; }
+.sub-hero { padding: var(--space-5); }
+.sub-badge {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-m);
+  display: grid;
+  place-items: center;
+  background: var(--accent-soft);
+  color: var(--accent);
+  flex: none;
+}
+.sub-badge .active { background: var(--green-soft); color: var(--green); }
+.sub-dates {
+  display: flex;
+  gap: var(--space-5);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-sunken);
+  border-radius: var(--radius-m);
+}
+.sub-dates > div { flex: 1; font-size: 14px; }
+.sub-progress { margin: var(--space-4) 0; }
+.sub-progress .progress { margin-bottom: 6px; }
+.sub-cta { margin-top: var(--space-4); }
+
+/* ============ Subscription payments + promo ============ */
+.sub-price-card { margin-top: var(--space-4); padding: var(--space-4); }
+.promo-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+.promo-row .promo-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--fg-secondary);
+}
+.promo-row .promo-input-wrap .input { flex: 1; }
+.promo-applied {
+  flex: 1;
+  color: var(--green);
+  font-weight: 650;
+  font-size: 14px;
+}
+.promo-tag {
+  color: var(--green);
+  font-size: 11.5px;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 0;
+  font-size: 14px;
+}
+.price-row.total {
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 10px;
+  font-weight: 700;
+  font-size: 15px;
+}
+.chip-link {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* ============ Admin tabs ============ */
+.admin-tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--bg-sunken);
+  border-radius: var(--radius-m);
+  padding: 4px;
+  margin: var(--space-2) 0 var(--space-4);
+}
+.admin-tabs button {
+  flex: 1;
+  border: none;
+  background: none;
+  padding: 9px 12px;
+  border-radius: var(--radius-s);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-secondary);
+  cursor: pointer;
+}
+.admin-tabs button.active {
+  background: var(--bg-elevated);
+  color: var(--fg);
+  box-shadow: var(--shadow-card);
+}
+.use-stat {
+  background: var(--bg-sunken);
+  border-radius: var(--radius-s);
+  padding: 10px 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.use-stat b { font-size: 15px; }
+.use-stat span { font-size: 11px; color: var(--fg-secondary); }
+
+.account-link {
+  text-align: center;
+  margin: var(--space-5) 0 var(--space-8);
+}
+.account-link a { color: var(--accent); font-weight: 600; font-size: 14px; }
+
+/* ============ Account ============ */
+.avatar-big {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 700;
+  flex: none;
+}
+
+/* ============ Admin ============ */
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.admin-tile {
+  padding: var(--space-4);
+  margin: 0;
+  text-align: center;
+}
+.revenue-tile { margin-bottom: 0; }
+@media (max-width: 360px) {
+  .admin-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ============ Install app ============ */
+.install-steps {
+  margin-top: 8px;
+}
+.step-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.step-num {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.step-body { min-width: 0; }
+.step-title { font-weight: 600; font-size: 14.5px; margin-bottom: 2px; }
+
+/* ============ Ads ============ */
+.ad-slot {
+  width: 100%;
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+.ad-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fg-tertiary);
+  margin-bottom: 4px;
+}
+.ad-slot ins {
+  width: 100%;
+}

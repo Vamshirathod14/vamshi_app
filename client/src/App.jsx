@@ -1,10 +1,15 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import { DataProvider } from "./context/DataContext.jsx";
 import { ToastProvider } from "./context/ToastContext.jsx";
 
 const Login = lazy(() => import("./screens/Login.jsx"));
+const Register = lazy(() => import("./screens/Register.jsx"));
+const Subscription = lazy(() => import("./screens/Subscription.jsx"));
+const Install = lazy(() => import("./screens/Install.jsx"));
+const Account = lazy(() => import("./screens/Account.jsx"));
+const Admin = lazy(() => import("./screens/Admin.jsx"));
 const Dashboard = lazy(() => import("./screens/Dashboard.jsx"));
 const Analytics = lazy(() => import("./screens/Analytics.jsx"));
 const Goals = lazy(() => import("./screens/Goals.jsx"));
@@ -40,6 +45,17 @@ function ThemeBootstrap() {
   return null;
 }
 
+// All the app feature routes live under this layout. The app is FREE for all
+// users right now (monetisation switched to ads), so there is no subscription
+// gate. Re-enable the Premium gate later by restoring the subscription check.
+function PremiumFeatures() {
+  return (
+    <DataProvider>
+      <Outlet />
+    </DataProvider>
+  );
+}
+
 function Router() {
   const { user, loading } = useAuth();
 
@@ -56,7 +72,11 @@ function Router() {
       <>
         <ThemeBootstrap />
         <Suspense fallback={<RouteFallback />}>
-          <Login />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
         </Suspense>
       </>
     );
@@ -65,10 +85,17 @@ function Router() {
   return (
     <>
       <ThemeBootstrap />
-      <DataProvider>
-        <Suspense fallback={<RouteFallback />}>
-          <Routes>
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          {/* Account-level pages — always reachable, even when not subscribed */}
+          <Route path="/subscription" element={<Subscription />} />
+          <Route path="/account" element={<Account />} />
+          {user.role === "admin" && <Route path="/admin" element={<Admin />} />}
+
+          {/* Premium features (currently FREE for everyone) */}
+          <Route element={<PremiumFeatures />}>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/install" element={<Install />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/goals" element={<Goals />} />
             <Route path="/more" element={<More />} />
@@ -84,10 +111,14 @@ function Router() {
             <Route path="/data" element={<DataPage />} />
             <Route path="/notifications" element={<Notifications />} />
             <Route path="/recurring" element={<Recurring />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </DataProvider>
+          </Route>
+
+          <Route
+            path="*"
+            element={<Navigate to="/" replace />}
+          />
+        </Routes>
+      </Suspense>
     </>
   );
 }

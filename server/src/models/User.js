@@ -27,6 +27,22 @@ const userSchema = new mongoose.Schema(
       summary: { type: Boolean, default: true },
     },
     pushSubscriptions: { type: [mongoose.Schema.Types.Mixed], default: [] },
+
+    // Subscription (Vamshi V2). Status lifecycle:
+    // inactive -> pending -> active -> (expired | cancelled)
+    // Expiry NEVER deletes data — the user simply drops back to read-only
+    // account access and can renew later.
+    subscriptionStatus: {
+      type: String,
+      enum: ["inactive", "pending", "active", "expired", "cancelled"],
+      default: "inactive",
+      index: true,
+    },
+    subscriptionPlanId: { type: String, default: null },
+    subscriptionStartDate: { type: Date, default: null },
+    subscriptionEndDate: { type: Date, default: null },
+    paymentCustomerId: { type: String, default: null },
+    subscriptionId: { type: String, default: null },
   },
   { timestamps: true },
 );
@@ -47,8 +63,13 @@ userSchema.methods.toSafe = function () {
     avatar: this.avatar,
     currency: this.currency,
     theme: this.theme,
+    role: this.role,
     notificationsEnabled: this.notificationsEnabled,
     notificationPrefs: this.notificationPrefs,
+    subscriptionStatus: this.subscriptionStatus,
+    subscriptionPlanId: this.subscriptionPlanId,
+    subscriptionStartDate: this.subscriptionStartDate,
+    subscriptionEndDate: this.subscriptionEndDate,
     createdAt: this.createdAt,
   };
 };

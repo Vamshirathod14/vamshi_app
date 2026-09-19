@@ -1,4 +1,4 @@
-const CACHE = "vamshi-v1";
+const CACHE = "vamshi-v2";
 const SHELL = [
   "/",
   "/index.html",

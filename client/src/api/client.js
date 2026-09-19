@@ -1,10 +1,11 @@
 const BASE = import.meta.env.VITE_API_URL || "";
 
 export class ApiError extends Error {
-  constructor(message, status, details) {
+  constructor(message, status, details, code) {
     super(message);
     this.status = status;
     this.details = details;
+    this.code = code;
   }
 }
 
@@ -38,6 +39,7 @@ async function request(path, { method = "GET", body, headers = {}, raw = false }
       data.message || "Something went wrong. Please try again.",
       res.status,
       data.details,
+      data.code,
     );
   }
   return data;

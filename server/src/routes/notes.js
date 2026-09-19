@@ -1,9 +1,11 @@
 import { Router } from "express";
 import * as notes from "../controllers/notes.js";
 import { protect } from "../middleware/auth.js";
+import { requireActiveSubscription } from "../middleware/subscription.js";
 
 const router = Router();
 router.use(protect);
+router.use(requireActiveSubscription);
 router.get("/", notes.list);
 router.get("/:id", notes.get);
 router.post("/", notes.create);

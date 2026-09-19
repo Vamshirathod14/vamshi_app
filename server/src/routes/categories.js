@@ -1,9 +1,11 @@
 import { Router } from "express";
 import * as categories from "../controllers/categories.js";
 import { protect } from "../middleware/auth.js";
+import { requireActiveSubscription } from "../middleware/subscription.js";
 
 const router = Router();
 router.use(protect);
+router.use(requireActiveSubscription);
 router.get("/", categories.list);
 router.post("/", categories.create);
 router.patch("/:id", categories.update);

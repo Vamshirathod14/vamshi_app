@@ -33,9 +33,21 @@ function withDefaultDatabase(uri, fallback) {
 
 const defaultDatabase = process.env.MONGODB_DB || "vamshi";
 
+export const nodeEnv = process.env.NODE_ENV || "development";
+
+// Payment mode. Development servers default to "test"; production forces "live"
+// — running a publicly-visible production server with test payments would let
+// users "pay" nothing and get premium, so it is never allowed.
+const requestedPaymentMode = (process.env.PAYMENT_MODE || (nodeEnv === "production" ? "live" : "test")).toLowerCase();
+const paymentMode = requestedPaymentMode === "live" ? "live" : "test";
+if (nodeEnv === "production" && paymentMode !== "live") {
+  console.warn("[env] PAYMENT_MODE must be 'live' in production — forcing live mode.");
+}
+
 export const env = {
   port: num(process.env.PORT, 3001),
-  nodeEnv: process.env.NODE_ENV || "development",
+  nodeEnv,
+  paymentMode,
   mongoUri: withDefaultDatabase(process.env.MONGODB_URI, defaultDatabase),
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
@@ -57,4 +69,21 @@ export const env = {
     password: process.env.BOOTSTRAP_PASSWORD || "changeme123",
   },
   maxReceiptSizeMb: num(process.env.MAX_RECEIPT_SIZE_MB, 5),
+
+  // Razorpay payments (optional). Without credentials the app still starts and
+  // the subscription page reports that payments are not configured so users
+  // can never be charged silently.
+  razorpayKeyId: process.env.RAZORPAY_KEY_ID || "",
+  razorpayKeySecret: process.env.RAZORPAY_KEY_SECRET || "",
+  razorpayWebhookSecret: process.env.RAZORPAY_WEBHOOK_SECRET || "",
+  // Optional: reuse a specific Razorpay plan for renewals instead of
+  // auto-creating one on first payment. Number of paid billing cycles an
+  // auto-renew subscription runs for (36 ≈ 3 years, then can be renewed).
+  razorpayPlanId: process.env.RAZORPAY_PLAN_ID || "",
+  razorpaySubscriptionCycles: num(process.env.RAZORPAY_SUBSCRIPTION_CYCLES, 36),
 };
+
+export const razorpayConfigured = Boolean(
+  env.razorpayKeyId && env.razorpayKeySecret,
+);
+export const razorpayWebhookConfigured = Boolean(env.razorpayWebhookSecret);

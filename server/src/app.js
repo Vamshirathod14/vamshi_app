@@ -29,6 +29,9 @@ import notificationRoutes from "./routes/notifications.js";
 import receiptRoutes from "./routes/receipts.js";
 import exportRoutes from "./routes/export.js";
 import dashboardRoutes from "./routes/dashboard.js";
+import subscriptionRoutes from "./routes/subscription.js";
+import adminRoutes from "./routes/admin.js";
+import webhookRoutes from "./routes/webhooks.js";
 
 export function createApp() {
   const app = express();
@@ -49,6 +52,10 @@ export function createApp() {
   );
 
   app.use(compression());
+  app.use(
+    "/api/webhooks/razorpay",
+    express.raw({ type: () => true, limit: "2mb" }),
+  );
   app.use(express.json({ limit: "2mb" }));
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
@@ -67,6 +74,9 @@ export function createApp() {
 
   app.use("/api/auth", authRoutes);
   app.use("/api/users", userRoutes);
+  app.use("/api/subscription", subscriptionRoutes);
+  app.use("/api/admin", adminRoutes);
+  app.use("/api/webhooks", webhookRoutes);
   app.use("/api/accounts", accountRoutes);
   app.use("/api/categories", categoryRoutes);
   app.use("/api/transactions", transactionRoutes);

@@ -11,3 +11,6 @@ export { RecurringTransaction } from "./RecurringTransaction.js";
 export { Notification } from "./Notification.js";
 export { Receipt } from "./Receipt.js";
 export { SessionToken } from "./Token.js";
+export { Payment } from "./Payment.js";
+export { PromoCode } from "./PromoCode.js";
+export { PromoCodeUsage } from "./PromoCodeUsage.js";

@@ -12,6 +12,17 @@ export function formatINR(value, { compact = false, signed = false } = {}) {
   })}`;
 }
 
+// Format an integer amount in paise (smallest currency unit) as ₹ with ₹0.01
+// precision. Whole amounts render without a fraction.
+export function formatPaise(paise) {
+  const n = Math.round(Number(paise) || 0);
+  const whole = n % 100 === 0;
+  return `₹${(n / 100).toLocaleString("en-IN", {
+    maximumFractionDigits: 2,
+    minimumFractionDigits: whole ? 0 : 2,
+  })}`;
+}
+
 export function moneyInputValue(v) {
   const n = Number(v) || 0;
   return n % 1 === 0 ? String(n) : n.toFixed(2);

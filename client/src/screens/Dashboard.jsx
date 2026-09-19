@@ -13,6 +13,7 @@ import TaskForm from "../components/TaskForm.jsx";
 import NoteForm from "../components/NoteForm.jsx";
 import ReminderForm from "../components/ReminderForm.jsx";
 import { Skeleton, EmptyState, Button, Card } from "../components/UI.jsx";
+import { AdBanner } from "../components/AdBanner.jsx";
 import { formatINR, greeting, formatMonthYear, timeLabel, toDateInput, timeAgo } from "../utils/format.js";
 
 export default function Dashboard() {
@@ -116,6 +117,10 @@ export default function Dashboard() {
             <div className="s-label">Savings</div>
             <div className="s-value" style={{ color: "var(--accent)" }}>{formatINR(data.month.savings, { compact: true })}</div>
           </div>
+        </div>
+
+        <div style={{ marginTop: 12 }}>
+          <AdBanner slot="1234567890" />
         </div>
 
         <div style={{ marginTop: 16 }}>

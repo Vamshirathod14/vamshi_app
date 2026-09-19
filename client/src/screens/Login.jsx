@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import { Button, Field } from "../components/UI.jsx";
 
 export default function Login() {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const { push } = useToast();
   const [email, setEmail] = useState("");
@@ -62,6 +64,9 @@ export default function Login() {
             Sign In
           </Button>
         </form>
+        <p className="auth-switch">
+          New here? <Link to="/register">Create an account</Link>
+        </p>
       </div>
     </div>
   );

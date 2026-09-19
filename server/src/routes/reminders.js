@@ -1,9 +1,11 @@
 import { Router } from "express";
 import * as reminders from "../controllers/reminders.js";
 import { protect } from "../middleware/auth.js";
+import { requireActiveSubscription } from "../middleware/subscription.js";
 
 const router = Router();
 router.use(protect);
+router.use(requireActiveSubscription);
 router.get("/", reminders.list);
 router.post("/", reminders.create);
 router.patch("/:id", reminders.update);

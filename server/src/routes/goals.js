@@ -1,9 +1,11 @@
 import { Router } from "express";
 import * as goals from "../controllers/goals.js";
 import { protect } from "../middleware/auth.js";
+import { requireActiveSubscription } from "../middleware/subscription.js";
 
 const router = Router();
 router.use(protect);
+router.use(requireActiveSubscription);
 router.get("/", goals.list);
 router.post("/", goals.create);
 router.patch("/:id", goals.update);

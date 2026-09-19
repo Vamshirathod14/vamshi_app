@@ -1,9 +1,11 @@
 import { Router } from "express";
 import * as transactions from "../controllers/transactions.js";
 import { protect } from "../middleware/auth.js";
+import { requireActiveSubscription } from "../middleware/subscription.js";
 
 const router = Router();
 router.use(protect);
+router.use(requireActiveSubscription);
 router.get("/stats", transactions.stats);
 router.get("/", transactions.list);
 router.get("/:id", transactions.get);
