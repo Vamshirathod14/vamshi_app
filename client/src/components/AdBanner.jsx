@@ -1,13 +1,20 @@
 import { useEffect, useRef } from "react";
 
-// Google AdSense banner. Disabled until you set VITE_ADSENSE_CLIENT at build
-// time (see client/.env.example). When configured, the banner renders an
-// auto-sized responsive ad unit using the given `slot` id.
-const CLIENT_ID = import.meta.env.VITE_ADSENSE_CLIENT || "";
+// Google AdSense banner. The publisher ID is baked in as a default (it's not
+// secret — it ships in every ad request) but can be overridden per build via
+// VITE_ADSENSE_CLIENT. Slot ids come from AdSense > Ads > Ad units.
+const CLIENT_ID =
+  import.meta.env.VITE_ADSENSE_CLIENT || "ca-pub-5290892277325184";
+
+let scriptInjected = false;
 
 export function enableAdSense() {
-  if (!CLIENT_ID) return;
-  if (document.querySelector("#adsense-js")) return;
+  const existing =
+    document.querySelector(
+      'script[src*="pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"]',
+    ) || document.getElementById("adsense-js");
+  if (existing || scriptInjected) return;
+  scriptInjected = true;
   const s = document.createElement("script");
   s.id = "adsense-js";
   s.async = true;
@@ -19,22 +26,20 @@ export function enableAdSense() {
 export function AdBanner({ slot }) {
   const pushedRef = useRef(false);
   useEffect(() => {
-    if (!CLIENT_ID || !slot) return;
-    enableAdSense();
     const idle = requestAnimationFrame(() => {
       if (!pushedRef.current) {
         pushedRef.current = true;
         try {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
         } catch {
-          // noop
+          // noop — AdSense script may not have loaded yet
         }
       }
     });
     return () => cancelAnimationFrame(idle);
   }, [slot]);
 
-  if (!CLIENT_ID || !slot) return null;
+  if (!slot) return null;
 
   return (
     <div className="ad-slot">
