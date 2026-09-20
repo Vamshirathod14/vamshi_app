@@ -14,6 +14,7 @@ import NoteForm from "../components/NoteForm.jsx";
 import ReminderForm from "../components/ReminderForm.jsx";
 import { Skeleton, EmptyState, Button, Card } from "../components/UI.jsx";
 import { AdBanner } from "../components/AdBanner.jsx";
+import InstallBanner from "../components/InstallBanner.jsx";
 import { formatINR, greeting, formatMonthYear, timeLabel, toDateInput, timeAgo } from "../utils/format.js";
 
 export default function Dashboard() {
@@ -93,6 +94,8 @@ export default function Dashboard() {
             )}
           </button>
         </div>
+
+        <InstallBanner />
 
         <div className="dash-top">
           <div className="balance-card">

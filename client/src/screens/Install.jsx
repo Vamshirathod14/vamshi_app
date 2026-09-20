@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Download, Smartphone, Share, Chrome, MonitorDown } from "lucide-react";
 import { Button, Chip } from "../components/UI.jsx";
+import { useInstallPrompt } from "../hooks/useInstallPrompt.js";
 
 function isIOS() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -9,28 +10,8 @@ function isIOS() {
 
 export default function Install() {
   const navigate = useNavigate();
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [standalone, setStandalone] = useState(false);
+  const { deferredPrompt, promptInstall, standalone } = useInstallPrompt();
   const ios = isIOS();
-
-  useEffect(() => {
-    const mq = window.matchMedia("(display-mode: standalone)");
-    setStandalone(mq.matches);
-
-    const onPrompt = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-    };
-    window.addEventListener("beforeinstallprompt", onPrompt);
-    return () => window.removeEventListener("beforeinstallprompt", onPrompt);
-  }, []);
-
-  async function promptInstall() {
-    if (!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
-    if (choice.outcome === "accepted") setDeferredPrompt(null);
-  }
 
   if (standalone) {
     return (
@@ -77,7 +58,9 @@ export default function Install() {
             <Download size={16} /> Install Vamshi
           </Button>
         ) : (
-          <Chip variant="accent">Installed app available for this browser</Chip>
+          <div style={{ marginTop: 12 }}>
+            <Chip variant="accent">This browser doesn't show a one-tap install — use the steps below</Chip>
+          </div>
         )}
       </div>
 
@@ -109,6 +92,45 @@ export default function Install() {
       ) : (
         <>
         <div className="install-steps">
+          <div className="group-label">On Android</div>
+          <div className="step-card">
+            <div className="step-num">1</div>
+            <div className="step-body">
+              <div className="step-title">Open Chrome</div>
+              <div className="small muted">Use the <b>Chrome</b> app and open <code>vamshi-app.onrender.com</code>.</div>
+            </div>
+          </div>
+          <div className="step-card">
+            <div className="step-num">2</div>
+            <div className="step-body">
+              <div className="step-title">Look for the install prompt</div>
+              <div className="small muted">Chrome shows an <b>Install app</b> bar at the bottom, or an icon near the address bar — tap it and then <b>Install</b>.</div>
+            </div>
+          </div>
+          <div className="step-card">
+            <div className="step-num">3</div>
+            <div className="step-body">
+              <div className="step-title">No prompt? Use the menu</div>
+              <div className="small muted">Tap the <Chrome size={13} style={{ verticalAlign: "-2px" }} /> ⋮ menu → <b>Install app</b> (recent Chrome) or <b>Add to Home screen</b> → <b>Add</b>.</div>
+            </div>
+          </div>
+          <div className="step-card">
+            <div className="step-num">4</div>
+            <div className="step-body">
+              <div className="step-title">Samsung Internet</div>
+              <div className="small muted">Menu <b>☰</b> → <b>Add page to</b> → <b>Home screen</b> → <b>Add</b>. A shortcut is added even if your browser doesn't support the full app mode.</div>
+            </div>
+          </div>
+          <div className="step-card">
+            <div className="step-num">5</div>
+            <div className="step-body">
+              <div className="step-title">Still stuck?</div>
+              <div className="small muted">Make sure you're on <b>https://</b>, update Chrome, and clear site data (site settings → clear) if you previously blocked it. Then reload and try again.</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="install-steps">
           <div className="group-label">On Desktop (Chrome / Edge)</div>
           <div className="step-card">
             <div className="step-num">1</div>
@@ -121,7 +143,7 @@ export default function Install() {
             <div className="step-num">2</div>
             <div className="step-body">
               <div className="step-title">Click the install icon</div>
-              <div className="small muted">Tap <MonitorDown size={13} style={{ verticalAlign: "-2px" }} /> in the address bar, or the ⋮ menu → <b>Install&nbsp;Vamshi</b> (or <b>Cast, save and share</b> → <b>Install page as app</b> in Edge).</div>
+              <div className="small muted">The <MonitorDown size={13} style={{ verticalAlign: "-2px" }} /> install icon sits in the address bar — or ⋮ menu → <b>Install&nbsp;Vamshi</b>.</div>
             </div>
           </div>
           <div className="step-card">
@@ -129,31 +151,6 @@ export default function Install() {
             <div className="step-body">
               <div className="step-title">Click Install</div>
               <div className="small muted">Confirm and Vamshi opens in its own app window, ready offline.</div>
-            </div>
-          </div>
-        </div>
-
-        <div className="install-steps">
-          <div className="group-label">On Android</div>
-          <div className="step-card">
-            <div className="step-num">1</div>
-            <div className="step-body">
-              <div className="step-title">Open Chrome</div>
-              <div className="small muted">Use the Chrome browser and open Vamshi.</div>
-            </div>
-          </div>
-          <div className="step-card">
-            <div className="step-num">2</div>
-            <div className="step-body">
-              <div className="step-title">Tap the menu</div>
-              <div className="small muted">Tap the <Chrome size={13} style={{ verticalAlign: "-2px" }} /> menu (three dots, top-right).</div>
-            </div>
-          </div>
-          <div className="step-card">
-            <div className="step-num">3</div>
-            <div className="step-body">
-              <div className="step-title">Add to Home screen</div>
-              <div className="small muted">Tap <b>Add to Home screen</b> → <b>Add</b>.</div>
             </div>
           </div>
         </div>

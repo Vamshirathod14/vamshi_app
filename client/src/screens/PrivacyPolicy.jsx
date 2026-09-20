@@ -5,15 +5,15 @@ import { useAuth } from "../context/AuthContext.jsx";
 const SECTIONS = [
   {
     h: "1. What we collect",
-    p: "Account details (name and email), and the financial data you enter such as income, expenses, budgets, goals, tasks, notes and reminders. We also collect basic technical data like your device/browser type and IP address for security and service reliability.",
+    p: "We only ask for your email address (and an optional name) when you create your account. That's the only personal information we collect. Everything else in the app is data you choose to enter — income, expenses, tasks, notes and so on — and it belongs to you.",
   },
   {
-    h: "2. How we use your data",
-    p: "To operate and improve Vamshi, keep you logged in, show you your own information, respond to support, and keep the service secure. We never sell your personal data.",
+    h: "2. Your data in the app",
+    p: "The information you enter in Vamshi is stored securely on your private account and used only to run the app for you — displaying your totals, generating your reports and syncing across your own devices. We never track, sell, share or advertise based on your finances.",
   },
   {
     h: "3. Advertising & cookies",
-    p: "The free app is supported by ads served by third parties such as Google AdSense. These providers may use cookies or similar technologies and device identifiers to show and measure ads. AdChoices/Google lets you manage or opt out of personalised ads at Google Ad Settings (adssettings.google.com).",
+    p: "The free app is supported by ads served by third parties such as Google AdSense. These providers may use cookies or similar technologies to show and measure ads. You can manage or opt out of personalised ads at Google Ad Settings (adssettings.google.com).",
   },
   {
     h: "4. Where your data is stored",
@@ -21,19 +21,19 @@ const SECTIONS = [
   },
   {
     h: "5. Sharing",
-    p: "We do not sell, rent or trade your personal data. We only share it with service providers who help run the app (hosting, storage) or where the law requires it.",
+    p: "We do not sell, rent or trade any of your data. We only share it with the service providers who help run the app (hosting and storage) or when the law requires it.",
   },
   {
     h: "6. Data retention & deletion",
-    p: "We keep your data while your account is active. You can export or permanently delete your data at any time from More > Data & Backup and More > Account.",
+    p: "We keep your data while your account is active. You can export it (More > Data & Backup) or permanently delete your account and all its data at any time (More > Account).",
   },
   {
     h: "7. Your rights",
-    p: "You can access, correct, export or delete your data. You can also disable personalised ads via your browser/AdSense settings. To delete your account and its data, use More > Account.",
+    p: "You can access, correct, export or delete your data at any time. To delete your account and everything in it, use More > Account.",
   },
   {
     h: "8. Security",
-    p: "We use encryption in transit, secure authentication sessions, and access controls to protect your information. No method of transmission is 100% secure, but we work hard to guard your data.",
+    p: "We use encryption in transit, secure authentication sessions and access controls to protect your information. No method of transmission is 100% secure, but we work hard to guard your data.",
   },
   {
     h: "9. Children's privacy",
@@ -63,7 +63,7 @@ export default function PrivacyPolicy() {
           <ChevronLeft size={18} /> Back to {user ? "home" : "sign in"}
         </Link>
         <h2 style={{ margin: "10px 0 4px" }}>Privacy Policy</h2>
-        <p className="auth-sub">Last updated: 19 September 2026</p>
+        <p className="auth-sub">Last updated: 20 September 2026</p>
         <div className="terms-body">
           {SECTIONS.map((s) => (
             <section key={s.h}>
