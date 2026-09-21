@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, LogOut, Trash2 } from "lucide-react";
 import { api } from "../api/client.js";
@@ -92,6 +92,21 @@ export default function Settings() {
   }
 
   const notificationsOn = user.notificationsEnabled !== false;
+
+  // Self-heal: the master switch can read ON while an individual pref is stale-
+  // off underneath (old UI, pre-config accounts). That would silently block
+  // reminder/task pushes even though everything looks enabled. Normalize on
+  // load whenever the master is ON and any pref is explicitly off.
+  useEffect(() => {
+    if (!user || !user.notificationPrefs || !notificationsOn) return;
+    const stale = Object.keys(ALL_PREFS_ON).some(
+      (k) => user.notificationPrefs[k] === false,
+    );
+    if (stale) {
+      updateMe({ notificationPrefs: ALL_PREFS_ON }).catch(() => {});
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, notificationsOn]);
 
   async function changePassword() {
     if (pwNew.length < 6) {

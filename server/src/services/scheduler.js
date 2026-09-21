@@ -108,6 +108,11 @@ export async function scanDueNotifications(now = new Date()) {
     const settings = await notificationSettings(r.userId);
 
     counts.reminders++;
+    if (settings.inApp && !settings.push) {
+      console.info(
+        `[push] reminder "${r.title}" fired IN-APP only — push off in user reminder prefs`,
+      );
+    }
     const res = await deliverScheduledNotification({
       userId: r.userId,
       source: "reminder",
@@ -149,6 +154,11 @@ export async function scanDueNotifications(now = new Date()) {
     const settings = await notificationSettings(t.userId);
 
     counts.tasks++;
+    if (settings.inApp && !settings.taskPush) {
+      console.info(
+        `[push] task reminder "${t.title}" fired IN-APP only — push off in user task prefs`,
+      );
+    }
     const res = await deliverScheduledNotification({
       userId: t.userId,
       source: "task",

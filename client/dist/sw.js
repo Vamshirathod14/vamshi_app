@@ -115,21 +115,53 @@ self.addEventListener("push", (event) => {
   }
   const type = String(data.type || "system");
   const title = data.title || (type === "test" ? "Vamshi Notifications" : "Vamshi");
-  const options = {
+  const base = {
     body: data.body || "You have a new update in Vamshi.",
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
     tag: data.tag || data.deliveryId || `vamshi-${type}`,
+    renotify: true,
     data: {
       url: coerceUrl(data.url),
       type,
       deliveryId: data.deliveryId || null,
     },
-    timestamp: data.timestamp || Date.now(),
-    renotify: true,
   };
-  if (data.requireInteraction) options.requireInteraction = true;
-  event.waitUntil(self.registration.showNotification(title, options));
+  const ts = Number(data.timestamp);
+  if (Number.isFinite(ts) && ts > 0) base.timestamp = ts;
+  if (data.requireInteraction) base.requireInteraction = true;
+
+  event.waitUntil(
+    (async () => {
+      try {
+        await self.registration.showNotification(title, base);
+      } catch (err) {
+        console.error("[sw] showNotification failed:", err);
+        // Minimal fallback — some Safari/iOS builds reject rich option sets
+        // (badge/renotify/timestamp). Never let a lost popup fail silently.
+        try {
+          await self.registration.showNotification(title, {
+            body: base.body,
+            data: base.data,
+          });
+        } catch (e2) {
+          console.error("[sw] fallback showNotification failed:", e2);
+        }
+      }
+      // Mirror to any open app window (handy for debugging in-device).
+      const clients = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
+      for (const c of clients) {
+        try {
+          c.postMessage({ type: "vamshi-push", title, body: base.body });
+        } catch {
+          // ignore
+        }
+      }
+    })(),
+  );
 });
 
 self.addEventListener("notificationclose", () => {
