@@ -107,6 +107,23 @@ export const pushSubscribe = asyncHandler(async (req, res) => {
     { $set: { isActive: false } },
   );
 
+  // First-time welcome: confirm to this device that notifications are live.
+  // Best-effort and fire-and-forget — never block the subscribe response.
+  try {
+    const { pushToEndpoint } = await import("../services/notifications.js");
+    await pushToEndpoint(
+      { endpoint, ...fields },
+      {
+        type: "system",
+        title: "You're all set! 🔔",
+        body: "Notifications are on — reminders, tips and special-day messages will now reach you even on the lock screen.",
+        url: "/",
+      },
+    );
+  } catch {
+    // welcome push is purely cosmetic; ignore any failure
+  }
+
   return res.json({ message: "Push notifications enabled.", enabled: true });
 });
 

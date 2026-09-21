@@ -77,6 +77,102 @@ export const schedulerState = {
   lastError: null,
 };
 
+// ================= Greetings & festival broadcasts =================
+// The app's audience runs on IST (+5:30). The server may be UTC (Render) or
+// IST (laptop) — derive the IST wall-clock explicitly so these fire at the
+// right local hour regardless of where the process runs.
+
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+const FESTIVAL_HOUR = 9; // 9am IST
+
+export function istWallClock(now = new Date()) {
+  return new Date(now.getTime() + IST_OFFSET_MS);
+}
+
+function slotEpoch(ist, hour) {
+  const utc = Date.UTC(
+    ist.getUTCFullYear(),
+    ist.getUTCMonth(),
+    ist.getUTCDate(),
+    hour,
+    0,
+    0,
+  );
+  return utc - IST_OFFSET_MS;
+}
+
+const GREETINGS = {
+  morning: {
+    hour: 9,
+    title: "Good morning ☀️",
+    body: "A new day, a fresh start. Open Vamshi and stay on top of today's plan and spending.",
+  },
+  afternoon: {
+    hour: 14,
+    title: "Good afternoon 🌤️",
+    body: "Quick check-in: log any expenses from this morning so the afternoon stays on track.",
+  },
+  evening: {
+    hour: 19,
+    title: "Good evening 🌙",
+    body: "Before the day winds down, save today's spend and prep tomorrow. You've got this!",
+  },
+};
+
+// Built-in festival/event list for 2026, fired once at 9am IST on the day.
+// Format: 2026-YYYY-MM-DD (IST). Edit freely each year.
+const FESTIVALS_2026 = [
+  { date: "2026-01-01", title: "Happy New Year! 🎉", body: "New year, new financial goals — log your first expense of 2026 with Vamshi." },
+  { date: "2026-01-15", title: "Happy Pongal / Sankranti! 🪁", body: "Season of new beginnings — track your festive spending and stay in control." },
+  { date: "2026-01-26", title: "Happy Republic Day! 🇮🇳", body: "Celebrate proudly and spend wisely. Log today's outings with Vamshi." },
+  { date: "2026-02-14", title: "Happy Valentine's Day! 💝", body: "Love is sweet — and so is watching your budget. Record the day's treats." },
+  { date: "2026-03-19", title: "Happy Ugadi! 🌸", body: "A new Telugu year begins — fresh budget, fresh blessings. Start logging today." },
+  { date: "2026-03-21", title: "Happy Holi! 🎨", body: "A splash of colour and joy — don't let the festive fun blur your budget." },
+  { date: "2026-03-31", title: "Eid Mubarak! 🌙", body: "May your days be abundant. Log the celebrations and keep every rupee counted." },
+  { date: "2026-08-31", title: "Happy Raksha Bandhan! 🪢", body: "Celebrate the bond with love — and keep those gift spends recorded." },
+  { date: "2026-09-14", title: "Ganesh Chaturthi! 🙏", body: "Ganpati Bappa Morya! Enjoy the festivities — track your expenses with ease." },
+  { date: "2026-10-16", title: "Happy Dussehra! 🏹", body: "Good triumphs over evil. Celebrate big, but mind the budget too." },
+  { date: "2026-11-08", title: "Happy Diwali! 🪔", body: "Light, laughter and sweets — may your savings shine the brightest. Log your festive spends." },
+  { date: "2026-12-25", title: "Merry Christmas! 🎄", body: "A season of giving and cheer — keep your holiday spending merry and mindful." },
+];
+
+/**
+ * Which system broadcasts are due right now, if any. Returns an array of
+ * {slot, title, body, refDay, ts} where ts is the STABLE epoch for that
+ * slot's day/hour — the deliveryKey built from it is identical across every
+ * poll in the window, so the unique-key guard fires the message exactly once.
+ */
+export function systemBroadcastFor(now = new Date()) {
+  const ist = istWallClock(now);
+  const results = [];
+  if (ist.getUTCMinutes() >= 5) return results;
+  const day = ist.toISOString().slice(0, 10);
+  for (const [key, g] of Object.entries(GREETINGS)) {
+    if (g.hour === ist.getUTCHours()) {
+      results.push({
+        slot: `greet-${key}`,
+        title: g.title,
+        body: g.body,
+        refDay: day,
+        ts: slotEpoch(ist, g.hour),
+      });
+    }
+  }
+  if (ist.getUTCHours() === FESTIVAL_HOUR) {
+    const fest = FESTIVALS_2026.find((f) => f.date === day);
+    if (fest) {
+      results.push({
+        slot: "fest",
+        title: fest.title,
+        body: fest.body,
+        refDay: day,
+        ts: slotEpoch(ist, FESTIVAL_HOUR),
+      });
+    }
+  }
+  return results;
+}
+
 function deliveryKey(kind, userId, refId, ts) {
   return `${kind}:${userId}:${refId}:${new Date(ts).getTime()}`;
 }
@@ -87,7 +183,7 @@ function deliveryKey(kind, userId, refId, ts) {
  * so two overlapping sweeps can never double-notify.
  */
 export async function scanDueNotifications(now = new Date()) {
-  const counts = { reminders: 0, tasks: 0, notified: 0, deduped: 0 };
+  const counts = { reminders: 0, tasks: 0, notified: 0, deduped: 0, broadcasts: 0 };
 
   // Catch-up: past-due NON-repeating reminders older than a day are silently
   // completed instead of spamming a fresh feature with a backlog of missed
@@ -205,6 +301,37 @@ export async function scanDueNotifications(now = new Date()) {
       { _id: t._id },
       { $set: { reminderEnabled: false } },
     );
+  }
+
+  // ---- Daily greetings & festival broadcasts (once per day per user) ----
+  const broadcasts = systemBroadcastFor(now);
+  for (const b of broadcasts) {
+    const userIds = await User.find({ notificationsEnabled: { $ne: false } })
+      .select("_id")
+      .lean();
+    let slotNotified = 0;
+    for (const { _id } of userIds) {
+      const key = deliveryKey(`sys-${b.slot}`, _id, b.refDay, b.ts);
+      const res = await deliverScheduledNotification({
+        userId: _id,
+        source: "system",
+        deliveryKey: key,
+        scheduledTime: new Date(b.ts),
+        title: b.title,
+        body: b.body,
+        url: "/",
+        createInAppNotification: false,
+        push: true,
+      });
+      res.deduped ? counts.deduped++ : (slotNotified += res.notified || 0);
+    }
+    counts.notified += slotNotified;
+    if (slotNotified > 0) {
+      counts.broadcasts++;
+      console.info(
+        `[push] broadcast "${b.title}" → ${slotNotified} device(s)`,
+      );
+    }
   }
 
   return counts;

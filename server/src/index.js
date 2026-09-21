@@ -39,10 +39,10 @@ async function start() {
   const pushTick = async () => {
     try {
       const counts = await scanDueNotifications();
-      if (counts.reminders + counts.tasks > 0) {
+      if (counts.reminders + counts.tasks + counts.broadcasts > 0) {
         console.log(
           `[push] sweep: ${counts.reminders} reminders, ${counts.tasks} tasks, ` +
-            `${counts.notified} device notification(s), ${counts.deduped} skipped (already sent)`,
+            `${counts.broadcasts} broadcast(s), ${counts.notified} device notification(s), ${counts.deduped} skipped (already sent)`,
         );
       }
     } catch (err) {

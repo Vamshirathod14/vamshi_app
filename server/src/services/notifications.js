@@ -105,6 +105,31 @@ function notificationTypeFor(source) {
 }
 
 /**
+ * Send one Web Push to a SINGLE subscription (used for the instant
+ * "you're all set" welcome when a device first subscribes).
+ */
+export async function pushToEndpoint(subscription, data) {
+  if (!configured && !configurePush()) {
+    return { notified: 0, failed: 0, skipped: "vapid-not-configured" };
+  }
+  try {
+    const res = await webpush.sendNotification(
+      {
+        endpoint: subscription.endpoint,
+        keys: { p256dh: subscription.p256dh, auth: subscription.auth },
+      },
+      JSON.stringify(data),
+    );
+    return res.statusCode >= 200 && res.statusCode < 300
+      ? { notified: 1, failed: 0 }
+      : { notified: 0, failed: 1 };
+  } catch (err) {
+    console.error(`[push] welcome send failed: ${err.message}`);
+    return { notified: 0, failed: 1 };
+  }
+}
+
+/**
  * Send one Web Push message to every ACTIVE subscription of a user.
  * Permanent failures (404/410 = subscription gone) deactivate only that
  * subscription. Transient failures (429/5xx/network) are left active so the
