@@ -130,6 +130,30 @@ export default function Notifications() {
           </div>
         )}
 
+        {pushHook.supported && pushHook.enabled && (
+          <div className="list-card" style={{ padding: 16, marginBottom: 14 }}>
+            <div style={{ fontWeight: 600 }}>🔔 Device notifications on</div>
+            <p className="small muted" style={{ margin: "5px 0 12px" }}>
+              This device will get reminders and task alerts even when the app is
+              closed. No popup during tests? Check System Settings → Notifications
+              → Google Chrome (allow notifications) and make sure Focus/DND is off.
+            </p>
+            <button
+              className="btn btn-sm"
+              disabled={pushHook.busy}
+              style={{ border: "1px solid var(--accent)", color: "var(--accent)", background: "transparent", cursor: "pointer" }}
+              onClick={() => pushHook.sendTest()}
+            >
+              {pushHook.busy ? "Sending…" : "Send test notification"}
+            </button>
+            {pushHook.message && (
+              <div className="small" style={{ marginTop: 8, color: "var(--accent)" }}>
+                {pushHook.message}
+              </div>
+            )}
+          </div>
+        )}
+
         {loading ? (
           <Skeleton lines={8} />
         ) : items.length === 0 ? (

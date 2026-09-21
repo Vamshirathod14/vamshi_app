@@ -35,8 +35,9 @@ function grabCookies(res) {
     .join("; ");
 }
 
-async function api(path, { method = "GET", body, cookie = cookiesA } = {}) {
+async function api(path, { method = "GET", body, cookie = cookiesA, ua } = {}) {
   const opts = { method, headers: { Cookie: cookie } };
+  if (ua !== undefined) opts.headers["User-Agent"] = ua;
   if (body !== undefined) opts.headers["Content-Type"] = "application/json", (opts.body = JSON.stringify(body));
   const res = await fetch(base + path, opts);
   const data = await res.json().catch(() => ({}));
@@ -232,7 +233,7 @@ test("expired endpoint (410) deactivates that device only", async () => {
 });
 
 // ---------- Multiple devices ----------
-test("a second device receives its own push", async () => {
+test("a second device (distinct user agent) receives its own push", async () => {
   const first = await PushSubscription.findOne({
     userId: await userAId(),
     isActive: true,
@@ -241,6 +242,7 @@ test("a second device receives its own push", async () => {
   await api("/api/notifications/push/subscribe", {
     method: "POST",
     body: subBody(),
+    ua: "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15",
   });
   webpush.sendNotification = async () => {
     sent.push(1);
@@ -253,6 +255,31 @@ test("a second device receives its own push", async () => {
     { userId: await userAId(), isActive: true, endpoint: { $ne: firstEndpoint } },
     { $set: { isActive: false } },
   );
+});
+
+// ---------- Same-browser re-registration ----------
+test("re-subscribing from the same user agent retires the stale device", async () => {
+  // Register twice from the same "browser" (Node fetch UA) with different endpoints.
+  await api("/api/notifications/push/subscribe", { method: "POST", body: subBody() });
+  await api("/api/notifications/push/subscribe", { method: "POST", body: subBody() });
+  const sameUa = await PushSubscription.countDocuments({
+    userId: await userAId(),
+    userAgent: "node",
+    isActive: true,
+  });
+  assert.equal(sameUa, 1, "only the newest same-browser endpoint stays active");
+
+  // A different device (different UA) still coexists.
+  await api("/api/notifications/push/subscribe", {
+    method: "POST",
+    body: subBody(),
+    ua: "Mozilla/5.0 (Linux; Android 14)",
+  });
+  const total = await PushSubscription.countDocuments({
+    userId: await userAId(),
+    isActive: true,
+  });
+  assert.equal(total, 2, "Mac browser + Android device can both be active");
 });
 
 // ---------- Scheduler: exactly-one delivery ----------
@@ -403,10 +430,14 @@ test("advanceToFuture jumps past missed occurrences without flooding", () => {
 
 // ---------- Recurring reminders deliver then advance ----------
 test("recurring reminder: delivers once, then advances to the next occurrence", async () => {
+  // A real 09:00 occurrence that is already in the past.
+  const due = new Date();
+  due.setHours(9, 0, 0, 0);
+  if (due > new Date()) due.setDate(due.getDate() - 1);
   const rec = await Reminder.create({
     userId: await userAId(),
     title: "Daily standup",
-    date: new Date(Date.now() - 5 * 1000),
+    date: due,
     time: "09:00",
     repeat: "daily",
     notificationEnabled: true,

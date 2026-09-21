@@ -142,7 +142,7 @@ export default function Subscription() {
         description: `${res.plan.name} · ${formatPaise(res.order.amountPaise)}/mo first payment`,
         order_id: res.order.id,
         prefill: { name: user.name, email: user.email },
-        theme: { color: "#059669" },
+        theme: { color: "#0284c7" },
         handler: async (response) => {
           try {
             await api.post("/api/subscription/verify", {

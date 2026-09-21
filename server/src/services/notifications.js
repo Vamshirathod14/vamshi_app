@@ -135,8 +135,12 @@ export async function pushToDevice(userId, data) {
           { _id: sub._id },
           { $set: { lastUsedAt: new Date() } },
         );
-        if (res.statusCode >= 200 && res.statusCode < 300) notified++;
-        else failed++;
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          notified++;
+          console.info(
+            `[push] delivered (${res.statusCode}) to ${sub.userAgent || "device"} ${sub.endpoint.slice(0, 48)}…`,
+          );
+        } else failed++;
       } catch (err) {
         const status = err?.statusCode;
         if (status === 404 || status === 410) {
@@ -144,6 +148,14 @@ export async function pushToDevice(userId, data) {
           await PushSubscription.updateOne(
             { _id: sub._id },
             { $set: { isActive: false, lastUsedAt: new Date() } },
+          );
+          console.warn(
+            `[push] device deactivated (${status}) for user ${userId}: ${sub.endpoint}`,
+          );
+        } else {
+          // Transient — keep the device active so a later occurrence can retry.
+          console.error(
+            `[push] send failed (${status || err.message}) to ${sub.endpoint}: ${err.message}`,
           );
         }
         failed++;

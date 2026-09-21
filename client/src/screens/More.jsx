@@ -39,12 +39,12 @@ export default function More() {
   const rows = [
     { to: "/transactions", icon: <ArrowRightLeft size={17} />, color: "var(--accent)", title: "Transactions", sub: "History, search & filters" },
     { to: "/tasks", icon: <CheckSquare size={17} />, color: "var(--amber)", title: "Tasks", sub: "Get things done" },
-    { to: "/notes", icon: <StickyNote size={17} />, color: "var(--green)", title: "Notes", sub: "Quick notes & checklists" },
+    { to: "/notes", icon: <StickyNote size={17} />, color: "var(--accent)", title: "Notes", sub: "Quick notes & checklists" },
     { to: "/reminders", icon: <Bell size={17} />, color: "var(--violet)", title: "Reminders", sub: "Never forget anything" },
   ];
 
   const moneyRows = [
-    { to: "/budgets", icon: <PiggyBank size={17} />, color: "var(--green)", title: "Budgets", sub: "Monthly category limits" },
+    { to: "/budgets", icon: <PiggyBank size={17} />, color: "var(--accent)", title: "Budgets", sub: "Monthly category limits" },
     { to: "/accounts", icon: <Wallet size={17} />, color: "var(--accent)", title: "Accounts", sub: "Wallets & balances" },
     { to: "/recurring", icon: <Repeat size={17} />, color: "var(--red)", title: "Recurring payments", sub: "Auto-generate transactions" },
     { to: "/notifications", icon: <BellRing size={17} />, color: "var(--amber)", title: "Notifications", sub: "Alerts & reminders" },
@@ -53,7 +53,7 @@ export default function More() {
   const dataRows = [
     { to: "/data", icon: <Database size={17} />, color: "var(--violet)", title: "Data & Backup", sub: "Export CSV, JSON backup" },
     { to: "/account", icon: <UserRound size={17} />, color: "var(--accent)", title: "Account", sub: "Profile & password" },
-    { to: "/install", icon: <Download size={17} />, color: "var(--green)", title: "Install app", sub: "Add Vamshi to your home screen" },
+    { to: "/install", icon: <Download size={17} />, color: "var(--accent)", title: "Install app", sub: "Add Vamshi to your home screen" },
     { to: "/settings", icon: <Settings size={17} />, color: "var(--fg-secondary)", title: "Settings", sub: "Preferences & security" },
     { to: "/terms", icon: <ScrollText size={17} />, color: "var(--fg-tertiary)", title: "Terms & Conditions", sub: "Terms of use & conditions" },
     { to: "/privacy-policy", icon: <Lock size={17} />, color: "var(--fg-tertiary)", title: "Privacy Policy", sub: "How we handle your data" },

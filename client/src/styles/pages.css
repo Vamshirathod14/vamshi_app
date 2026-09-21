@@ -21,8 +21,8 @@
   padding: var(--space-6) var(--space-5);
 }
 .onboarding-wrap .logo-mark {
-  background: linear-gradient(135deg, #0f766e 0%, #059669 50%, #10b981 100%);
-  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
+  box-shadow: 0 6px 18px rgba(14, 165, 233, 0.4);
 }
 .onboarding-card {
   width: 100%;
@@ -53,7 +53,7 @@
   transition: background 0.3s ease;
 }
 .ob-seg.on {
-  background: linear-gradient(90deg, #0f766e, #10b981);
+  background: linear-gradient(90deg, #0284c7, #38bdf8);
 }
 .ob-skip {
   border: none;
@@ -64,7 +64,7 @@
   cursor: pointer;
   white-space: nowrap;
 }
-.ob-skip:hover { color: #10b981; }
+.ob-skip:hover { color: #0ea5e9; }
 .ob-body {
   text-align: center;
   min-height: 320px;
@@ -81,8 +81,8 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-  background: linear-gradient(135deg, #0f766e 0%, #059669 50%, #10b981 100%);
-  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.35);
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
+  box-shadow: 0 10px 30px rgba(14, 165, 233, 0.35);
   margin-bottom: var(--space-5);
   animation: page-in 0.4s var(--ease-out);
 }
@@ -139,7 +139,7 @@
   border-radius: 8px;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f766e, #10b981);
+  background: linear-gradient(135deg, #0284c7, #38bdf8);
   color: #fff;
 }
 .ob-nav {
@@ -168,7 +168,7 @@
   transition: all 0.25s ease;
 }
 .ob-dot.on {
-  background: #10b981;
+  background: #0ea5e9;
   width: 22px;
 }
 .ob-step-label {
@@ -195,7 +195,7 @@
   font-weight: 600;
 }
 .ob-links a {
-  color: #10b981;
+  color: #0ea5e9;
 }
 .ob-links a:hover { text-decoration: underline; }
 .ob-sep { color: var(--fg-tertiary); }
@@ -204,9 +204,9 @@
 .onboarding-card .btn-primary,
 .onboarding-card .btn-primary:hover,
 .onboarding-card .btn-primary:active {
-  background: linear-gradient(135deg, #0f766e 0%, #059669 50%, #10b981 100%);
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
   border-color: transparent;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
 }
 @media (max-width: 400px) {
   .onboarding-card { padding: var(--space-5) var(--space-4); }
@@ -275,7 +275,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 18px rgba(14, 165, 233, 0.4);
 }
 .auth-logo h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; margin: 0; }
 .auth-card h2 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.01em; }
@@ -304,13 +304,13 @@
 .greet .emoji { margin-right: 4px; }
 
 .balance-card {
-  background: linear-gradient(135deg, #0f766e 0%, #059669 50%, #10b981 100%);
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 50%, #38bdf8 100%);
   border-radius: var(--radius-xl);
   padding: var(--space-6);
   color: #fff;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.32);
+  box-shadow: 0 12px 30px rgba(14, 165, 233, 0.32);
 }
 .balance-card::before {
   content: "";
@@ -368,8 +368,8 @@
 .stat-cell .s-value { font-size: 16.5px; font-weight: 700; margin-top: 3px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .today-spend {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(16, 185, 129, 0.05));
-  border: 1px solid rgba(16, 185, 129, 0.22);
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.14), rgba(14, 165, 233, 0.05));
+  border: 1px solid rgba(14, 165, 233, 0.22);
   border-radius: var(--radius-l);
   padding: var(--space-4) var(--space-5);
   display: flex;

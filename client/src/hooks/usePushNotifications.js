@@ -175,7 +175,11 @@ export function usePushNotifications() {
     setMessage("");
     try {
       const res = await api.post("/api/notifications/push/test", {});
-      setMessage(res.message || "Test notification sent.");
+      let msg = res.message || "Test notification sent.";
+      if (typeof res.sent === "number") {
+        msg += ` (${res.sent} delivered${res.failed ? `, ${res.failed} failed` : ""})`;
+      }
+      setMessage(msg);
       return res;
     } catch (err) {
       setMessage(err?.message || "Test notification failed.");

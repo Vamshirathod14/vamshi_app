@@ -74,10 +74,11 @@ export const pushSubscribe = asyncHandler(async (req, res) => {
 
   const userId = req.user._id;
   const { endpoint, keys } = data;
+  const userAgent = req.headers["user-agent"]?.slice(0, 300) || "";
   const fields = {
     p256dh: keys.p256dh,
     auth: keys.auth,
-    userAgent: req.headers["user-agent"]?.slice(0, 300) || "",
+    userAgent,
     isActive: true,
     lastUsedAt: new Date(),
   };
@@ -95,6 +96,16 @@ export const pushSubscribe = asyncHandler(async (req, res) => {
       throw err;
     }
   }
+
+  // A browser holds ONE live Web Push subscription per registration. When the
+  // same browser endpoint changes (re-subscribe), push services invalidate the
+  // old one — leaving stale rows that fail with 404/410 on every send. Deactivate
+  // other active subscriptions from the SAME user agent so they don't become
+  // zombie devices (distinct devices with different user agents stay untouched).
+  await PushSubscription.updateMany(
+    { userId, endpoint: { $ne: endpoint }, userAgent, isActive: true },
+    { $set: { isActive: false } },
+  );
 
   return res.json({ message: "Push notifications enabled.", enabled: true });
 });
