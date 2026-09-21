@@ -72,6 +72,7 @@ export function createApp() {
             "https://*.google.com",
             "https://*.googleapis.com",
             "https://*.googlesyndication.com",
+            "https://*.google",
           ],
         },
       },

@@ -1,4 +1,4 @@
-const CACHE = "vamshi-v2";
+const CACHE = "vamshi-v3";
 const SHELL = [
   "/",
   "/index.html",
@@ -29,8 +29,13 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Never cache API or auth endpoints.
+  // Never touch API, auth, or cross-origin requests (ads, fonts, images from
+  // Google etc. must NOT go through the service worker — that breaks content
+  // security policy and pollutes the cache).
   if (request.method !== "GET" || url.pathname.startsWith(API)) {
+    return;
+  }
+  if (url.origin !== self.location.origin) {
     return;
   }
 

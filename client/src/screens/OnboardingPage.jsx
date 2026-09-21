@@ -94,12 +94,12 @@ export default function OnboardingPage() {
 
   return (
     <div className="auth-wrap onboarding-wrap">
-      <div className="auth-logo">
-        <div className="logo-mark">V</div>
-        <h1>Vamshi</h1>
-      </div>
+      <div className="auth-card onboarding-card">
+        <div className="auth-logo">
+          <div className="logo-mark">V</div>
+          <h1>Vamshi</h1>
+        </div>
 
-      <div className="onboarding-card">
         <div className="ob-top">
           <div className="ob-progress">
             {STEPS.map((_, i) => (
@@ -165,20 +165,20 @@ export default function OnboardingPage() {
             )}
           </Button>
         </div>
+
+        <p className="ob-step-label">
+          Step {step + 1} of {STEPS.length}
+        </p>
+
+        <footer className="ob-foot">
+          <span className="small muted">© 2026 Vamshi · Your finance &amp; life home</span>
+          <div className="ob-links">
+            <Link to="/terms">Terms &amp; Conditions</Link>
+            <span className="ob-sep">·</span>
+            <Link to="/privacy-policy">Privacy Policy</Link>
+          </div>
+        </footer>
       </div>
-
-      <p className="ob-step-label">
-        Step {step + 1} of {STEPS.length}
-      </p>
-
-      <footer className="ob-foot">
-        <span className="small muted">© 2026 Vamshi · Your finance &amp; life home</span>
-        <div className="ob-links">
-          <Link to="/terms">Terms &amp; Conditions</Link>
-          <span className="ob-sep">·</span>
-          <Link to="/privacy-policy">Privacy Policy</Link>
-        </div>
-      </footer>
     </div>
   );
 }
