@@ -6,6 +6,7 @@ import { ToastProvider } from "./context/ToastContext.jsx";
 
 const Login = lazy(() => import("./screens/Login.jsx"));
 const Register = lazy(() => import("./screens/Register.jsx"));
+const OnboardingPage = lazy(() => import("./screens/OnboardingPage.jsx"));
 const Terms = lazy(() => import("./screens/Terms.jsx"));
 const PrivacyPolicy = lazy(() =>
   import("./screens/PrivacyPolicy.jsx"),
@@ -77,10 +78,10 @@ function Router() {
         <ThemeBootstrap />
         <Suspense fallback={<RouteFallback />}>
           <Routes>
+            <Route path="/" element={<OnboardingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
 <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
