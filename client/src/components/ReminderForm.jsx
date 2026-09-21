@@ -44,7 +44,17 @@ export default function ReminderForm({ open, onClose, onSuccess, reminder = null
     }
     setLoading(true);
     try {
-      const body = { title: title.trim(), description, date, time, repeat, priority };
+      // Resolve the user's chosen wall-clock to an absolute instant HERE (their
+      // browser timezone) so the server never re-interprets it in another TZ.
+      const when = new Date(`${date}T${time}:00`);
+      const body = {
+        title: title.trim(),
+        description,
+        date: Number.isNaN(when.getTime()) ? date : when.toISOString(),
+        time,
+        repeat,
+        priority,
+      };
       if (isEdit) await api.patch(`/api/reminders/${reminder._id}`, body);
       else await api.post("/api/reminders", body);
       push("Reminder set!", "success");

@@ -56,15 +56,30 @@ export function monthBounds(key) {
   return { start: new Date(y, m - 1, 1), end: new Date(y, m, 0, 23, 59, 59, 999) };
 }
 
-/** Combine "YYYY-MM-DD" date and "HH:mm" time into a Date */
+/** Combine "YYYY-MM-DD" date and "HH:mm" time into a Date.
+ *
+ * The user's wall-clock is resolved CLIENT-side: forms send an ISO datetime
+ * ("2026-09-21T12:45:00.000+05:30" — absolute instant). When an ISO string
+ * arrives, it is passed through unchanged so the SERVER timezone (Render = UTC,
+ * laptop = IST) can never skew when a reminder fires. The legacy
+ * "YYYY-MM-DD" + "HH:mm" combo is kept for backward compatibility.
+ */
 export function combineDateTime(dateStr, timeStr) {
-  if (dateStr instanceof Date) dateStr = toDateOnly(dateStr);
+  if (dateStr instanceof Date) {
+    if (Number.isNaN(dateStr.getTime())) return new Date();
+    return dateStr;
+  }
+  if (typeof dateStr === "string" && /T\d{2}/.test(dateStr)) {
+    const d = new Date(dateStr);
+    return Number.isNaN(d.getTime()) ? new Date() : d;
+  }
   const d = new Date(dateStr);
   if (timeStr) {
     const [h, min] = timeStr.split(":").map(Number);
+    if (!Number.isFinite(h) || !Number.isFinite(min)) return d;
     d.setHours(h, min, 0, 0);
   }
-  return d;
+  return Number.isNaN(d.getTime()) ? new Date() : d;
 }
 
 export function toDateInputValue(date) {

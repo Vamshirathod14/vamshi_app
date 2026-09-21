@@ -24,6 +24,13 @@ const taskSchema = z.object({
 function computeReminder(data, existing = {}) {
   const enabled = data.reminderEnabled ?? existing.reminderEnabled ?? false;
   if (!enabled) return { reminderEnabled: false, reminderAt: null };
+  // Client already resolved the user's wall-clock to an absolute instant.
+  if (data.reminderAt) {
+    const t = new Date(data.reminderAt);
+    if (!Number.isNaN(t.getTime())) {
+      return { reminderEnabled: true, reminderAt: t };
+    }
+  }
   const dueDate = data.dueDate ?? existing.dueDate;
   if (!dueDate) return { reminderEnabled: false, reminderAt: null };
   const dueTime = data.dueTime ?? existing.dueTime ?? "23:59";

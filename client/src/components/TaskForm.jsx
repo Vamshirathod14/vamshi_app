@@ -44,6 +44,15 @@ export default function TaskForm({ open, onClose, onSuccess, task = null }) {
     }
     setLoading(true);
     try {
+      // Resolve a reminder's wall-clock to an absolute instant in the user's
+      // browser timezone — the server (UTC on Render) must never re-derive it.
+      let when = null;
+      if (!noDue && remind) {
+        const t = new Date(
+          `${dueDate}T${dueTime || "23:59"}:00`,
+        );
+        if (!Number.isNaN(t.getTime())) when = t.toISOString();
+      }
       const body = {
         title: title.trim(),
         description,
@@ -52,6 +61,7 @@ export default function TaskForm({ open, onClose, onSuccess, task = null }) {
         priority,
         reminderEnabled: !noDue && remind,
       };
+      if (when) body.reminderAt = when;
       if (isEdit) await api.patch(`/api/tasks/${task._id}`, body);
       else await api.post("/api/tasks", body);
       push(isEdit ? "Task updated!" : "Task added!", "success");
