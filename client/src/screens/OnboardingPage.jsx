@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   BarChart3,
@@ -19,6 +19,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "../components/UI.jsx";
+
+const SEEN_KEY = "vamshi:seen-onboarding";
 
 const STEPS = [
   {
@@ -64,8 +66,23 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(0);
   const last = step === STEPS.length - 1;
 
+  // Show onboarding only on a user's very first visit. Every later visit is
+  // routed straight to the login screen.
+  useEffect(() => {
+    const seen = localStorage.getItem(SEEN_KEY) === "1";
+    if (seen) {
+      navigate("/login", { replace: true });
+    } else {
+      localStorage.setItem(SEEN_KEY, "1");
+    }
+  }, [navigate]);
+
+  function goLogin() {
+    localStorage.setItem(SEEN_KEY, "1");
+    navigate("/login");
+  }
   function next() {
-    if (last) navigate("/login");
+    if (last) goLogin();
     else setStep((s) => s + 1);
   }
   function prev() {
@@ -89,7 +106,7 @@ export default function OnboardingPage() {
               <span key={i} className={`ob-seg ${i <= step ? "on" : ""}`} />
             ))}
           </div>
-          <button className="ob-skip" onClick={() => navigate("/login")}>
+          <button className="ob-skip" onClick={goLogin}>
             Skip to Login
           </button>
         </div>

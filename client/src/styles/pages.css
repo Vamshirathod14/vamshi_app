@@ -15,8 +15,13 @@
 
 /* ============ Onboarding ============ */
 .onboarding-wrap {
-  justify-content: center;
-  padding: var(--space-5) var(--space-4) var(--space-6);
+  justify-content: safe center;
+  min-height: 100dvh;
+  padding: var(--space-4) var(--space-4) var(--space-6);
+}
+.onboarding-wrap .logo-mark {
+  background: linear-gradient(135deg, #0f766e 0%, #059669 50%, #10b981 100%);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
 }
 .onboarding-card {
   width: 100%;
@@ -47,7 +52,7 @@
   transition: background 0.3s ease;
 }
 .ob-seg.on {
-  background: var(--accent);
+  background: linear-gradient(90deg, #0f766e, #10b981);
 }
 .ob-skip {
   border: none;
@@ -58,7 +63,7 @@
   cursor: pointer;
   white-space: nowrap;
 }
-.ob-skip:hover { color: var(--accent); }
+.ob-skip:hover { color: #10b981; }
 .ob-body {
   text-align: center;
   min-height: 320px;
@@ -75,8 +80,8 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--violet) 100%);
-  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.35);
+  background: linear-gradient(135deg, #0f766e 0%, #059669 50%, #10b981 100%);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.35);
   margin-bottom: var(--space-5);
   animation: page-in 0.4s var(--ease-out);
 }
@@ -133,7 +138,7 @@
   border-radius: 8px;
   align-items: center;
   justify-content: center;
-  background: var(--accent);
+  background: linear-gradient(135deg, #0f766e, #10b981);
   color: #fff;
 }
 .ob-nav {
@@ -162,7 +167,7 @@
   transition: all 0.25s ease;
 }
 .ob-dot.on {
-  background: var(--accent);
+  background: #10b981;
   width: 22px;
 }
 .ob-step-label {
@@ -189,10 +194,28 @@
   font-weight: 600;
 }
 .ob-links a {
-  color: var(--accent);
+  color: #10b981;
 }
 .ob-links a:hover { text-decoration: underline; }
 .ob-sep { color: var(--fg-tertiary); }
+
+/* Green accent (matches the dashboard balance card) + mobile-first sizing */
+.onboarding-card .btn-primary,
+.onboarding-card .btn-primary:hover,
+.onboarding-card .btn-primary:active {
+  background: linear-gradient(135deg, #0f766e 0%, #059669 50%, #10b981 100%);
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+@media (max-width: 400px) {
+  .onboarding-card { padding: var(--space-5) var(--space-4); }
+  .ob-body { min-height: 300px; }
+  .ob-icon { width: 72px; height: 72px; border-radius: 22px; }
+  .ob-title { font-size: 18px; }
+  .ob-features { grid-template-columns: 1fr; }
+  .ob-nav .btn { min-width: 96px; padding-inline: var(--space-3); }
+  .ob-skip { font-size: 12.5px; }
+}
 
 .install-banner {
   display: flex;
