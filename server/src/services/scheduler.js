@@ -70,6 +70,13 @@ async function notificationSettings(userId) {
 
 // ================= Due scan =================
 
+export const schedulerState = {
+  lastSweepAt: null,
+  lastRemindersSeen: 0,
+  lastTasksSeen: 0,
+  lastError: null,
+};
+
 function deliveryKey(kind, userId, refId, ts) {
   return `${kind}:${userId}:${refId}:${new Date(ts).getTime()}`;
 }
@@ -106,9 +113,14 @@ export async function scanDueNotifications(now = new Date()) {
     notificationEnabled: true,
     date: { $lte: now },
   }).lean();
+  schedulerState.lastSweepAt = new Date();
+  schedulerState.lastRemindersSeen = dueReminders.length;
+  console.info(
+    `[push] sweep @${now.toISOString()}: ${dueReminders.length} reminder(s) due`,
+  );
   if (dueReminders.length > 0) {
     console.info(
-      `[push] sweep @${now.toISOString()}: ${dueReminders.length} reminder(s) due now`,
+      `[push] reminders now: ${dueReminders.map((r) => `"${r.title}"`).join(", ")}`,
     );
   }
 
@@ -161,6 +173,7 @@ export async function scanDueNotifications(now = new Date()) {
     reminderEnabled: true,
     reminderAt: { $ne: null, $lte: now },
   }).lean();
+  schedulerState.lastTasksSeen = dueTasks.length;
 
   for (const t of dueTasks) {
     const scheduledTime = t.reminderAt;

@@ -169,6 +169,44 @@ export const pushAck = asyncHandler(async (req, res) => {
   return res.status(204).end();
 });
 
+/** One-tap diagnostic: user gate, subscriptions, recent reminders, scheduler
+ * liveness — everything needed to explain why a reminder did or didn't push. */
+export const pushDiag = asyncHandler(async (req, res) => {
+  const user = req.user;
+  const enabled = user.notificationsEnabled !== false;
+  const prefs = user.notificationPrefs || {};
+  const gate = {
+    masterOn: enabled,
+    reminderPush: enabled && prefs.generalReminders !== false,
+    taskPush: enabled && prefs.taskReminders !== false,
+    inApp: enabled,
+  };
+  const subs = await PushSubscription.find({
+    userId: user._id,
+    isActive: true,
+  })
+    .select("endpoint userAgent lastUsedAt isActive")
+    .lean();
+  const { Reminder } = await import("../models/Reminder.js");
+  const recent = await Reminder.find({ userId: user._id })
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .select("title date notificationEnabled completed repeat")
+    .lean();
+  const { schedulerState } = await import("../services/scheduler.js");
+  return res.json({
+    notificationsEnabled: enabled,
+    notificationPrefs: prefs,
+    gate,
+    devices: subs.map((s) => ({
+      ua: s.userAgent?.slice(0, 40),
+      lastUsed: s.lastUsedAt,
+    })),
+    recentReminders: recent,
+    scheduler: schedulerState,
+  });
+});
+
 export const clearSessions = asyncHandler(async (req, res) => {
   const current = req.cookies?.accessToken
     ? (await import("jsonwebtoken")).default.verify(

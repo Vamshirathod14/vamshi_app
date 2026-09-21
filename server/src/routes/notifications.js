@@ -22,4 +22,5 @@ router.post("/push/subscribe", pushLimiter, notifications.pushSubscribe);
 router.delete("/push/unsubscribe", pushLimiter, notifications.pushUnsubscribe);
 router.post("/push/test", pushLimiter, notifications.pushTest);
 router.post("/push/ack", notifications.pushAck);
+router.get("/push/diag", notifications.pushDiag);
 export default router;

@@ -183,6 +183,31 @@ export default function Notifications() {
           Signed in on multiple devices? You can sign out everywhere except this one.
         </p>
         <button className="link-btn" onClick={clearSessions}>Sign out all other sessions</button>
+
+        <div className="group-label">Debug</div>
+        <p className="small muted" style={{ marginTop: 4 }}>
+          Push isn't arriving? Tap below — a diagnostic summary is copied to
+          your clipboard. Paste it into your support chat.
+        </p>
+        <button
+          className="link-btn"
+          onClick={async () => {
+            try {
+              const d = await api.get("/api/notifications/push/diag");
+              const text = JSON.stringify(d, null, 2);
+              try {
+                await navigator.clipboard.writeText(text);
+                push("Diagnostics copied — paste them here.", "success");
+              } catch {
+                push(text, "success");
+              }
+            } catch (err) {
+              push(err.message, "error");
+            }
+          }}
+        >
+          Diagnose push
+        </button>
       </div>
     </Layout>
   );
