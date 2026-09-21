@@ -106,6 +106,25 @@ function coerceUrl(raw) {
   return "/";
 }
 
+// Report back to the server so a push that reaches the device is provable in
+// the logs: deliveryId/type and whether showNotification succeeded. Failures to
+// report are swallowed — this is diagnostic-only and must never break delivery.
+async function reportPushAck(data, shown) {
+  try {
+    await fetch("/api/notifications/push/ack", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        deliveryId: data.deliveryId || null,
+        type: data.type || "system",
+        shown,
+      }),
+    });
+  } catch {
+    // ignore
+  }
+}
+
 self.addEventListener("push", (event) => {
   let data = {};
   try {
@@ -133,8 +152,10 @@ self.addEventListener("push", (event) => {
 
   event.waitUntil(
     (async () => {
+      let shown = false;
       try {
         await self.registration.showNotification(title, base);
+        shown = true;
       } catch (err) {
         console.error("[sw] showNotification failed:", err);
         // Minimal fallback — some Safari/iOS builds reject rich option sets
@@ -144,10 +165,12 @@ self.addEventListener("push", (event) => {
             body: base.body,
             data: base.data,
           });
+          shown = true;
         } catch (e2) {
           console.error("[sw] fallback showNotification failed:", e2);
         }
       }
+      reportPushAck(data, shown);
       // Mirror to any open app window (handy for debugging in-device).
       const clients = await self.clients.matchAll({
         type: "window",
@@ -155,7 +178,7 @@ self.addEventListener("push", (event) => {
       });
       for (const c of clients) {
         try {
-          c.postMessage({ type: "vamshi-push", title, body: base.body });
+          c.postMessage({ type: "vamshi-push", title, body: base.body, shown });
         } catch {
           // ignore
         }

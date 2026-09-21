@@ -159,6 +159,16 @@ export const pushTest = asyncHandler(async (req, res) => {
   });
 });
 
+/** Device-side receipt: the SW calls this after handling a push, proving the
+ * payload reached the device's service worker and whether it rendered. */
+export const pushAck = asyncHandler(async (req, res) => {
+  const { deliveryId, type, shown } = req.body || {};
+  console.info(
+    `[push] SW ACK type=${type || "?"} deliveryId=${deliveryId || "-"} shown=${shown === true}`,
+  );
+  return res.status(204).end();
+});
+
 export const clearSessions = asyncHandler(async (req, res) => {
   const current = req.cookies?.accessToken
     ? (await import("jsonwebtoken")).default.verify(
