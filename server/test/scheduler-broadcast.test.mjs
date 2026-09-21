@@ -29,9 +29,22 @@ test("19:00 IST fires the evening greeting", () => {
 });
 
 test("a festival morning fires the fest broadcast alongside the greeting", () => {
-  const r = systemBroadcastFor(new Date("2026-12-25T03:30:00.000Z"));
+  const fest = { date: "2026-12-25", title: "Merry Christmas! 🎄", body: "...", active: true };
+  const r = systemBroadcastFor(new Date("2026-12-25T03:30:00.000Z"), fest);
   assert.ok(r.some((x) => x.slot === "greet-morning"));
   assert.ok(r.some((x) => x.slot === "fest" && x.title.includes("Christmas")));
+});
+
+test("no festival broadcast when none is scheduled for today", () => {
+  const r = systemBroadcastFor(new Date("2026-12-25T03:30:00.000Z"), null);
+  assert.ok(!r.some((x) => x.slot === "fest"));
+});
+
+test("an inactive festival day does not broadcast", () => {
+  const fest = { date: "2026-12-25", title: "Merry Christmas! 🎄", body: "...", active: false };
+  const r = systemBroadcastFor(new Date("2026-12-25T03:30:00.000Z"), fest);
+  assert.ok(!r.some((x) => x.slot === "fest"));
+  assert.ok(r.some((x) => x.slot === "greet-morning"));
 });
 
 test("no broadcast outside the 0-4 min window", () => {

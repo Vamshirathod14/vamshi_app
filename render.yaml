@@ -40,3 +40,6 @@ services:
         sync: false
       - key: VAPID_SUBJECT
         sync: false
+      # Comma-separated emails auto-promoted to admin (promos + festival management)
+      - key: ADMIN_EMAILS
+        sync: false

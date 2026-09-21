@@ -8,7 +8,20 @@ import { formatDate, formatPaise, toDateInput } from "../utils/format.js";
 const TABS = [
   { id: "overview", label: "Overview" },
   { id: "promo", label: "Promo codes" },
+  { id: "festivals", label: "Festivals" },
 ];
+
+function TabBar({ active, onNavigate }) {
+  return (
+    <div className="admin-tabs">
+      {TABS.map((t) => (
+        <button key={t.id} className={t.id === active ? "active" : ""} onClick={() => onNavigate(t.id)}>
+          {t.label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 const rup = (paise) => (paise == null ? "" : String(Math.round(paise) / 100));
 const toPaise = (value) => (value === "" || value == null ? null : Math.round(Number(value) * 100));
@@ -44,11 +57,12 @@ export default function Admin() {
   const navigate = useNavigate();
   const [tab, setTab] = useState("overview");
 
-  if (tab === "promo") return <PromoCodes navigate={navigate} onBack={() => setTab("overview")} />;
-  return <Overview navigate={navigate} onOpenPromo={() => setTab("promo")} />;
+  if (tab === "promo") return <PromoCodes onNavigate={setTab} />;
+  if (tab === "festivals") return <Festivals onNavigate={setTab} />;
+  return <Overview navigate={navigate} onNavigate={setTab} />;
 }
 
-function Overview({ navigate, onOpenPromo }) {
+function Overview({ navigate, onNavigate }) {
   const [stats, setStats] = useState(null);
   const [error, setError] = useState("");
 
@@ -87,13 +101,7 @@ function Overview({ navigate, onOpenPromo }) {
         <h1 className="screen-title">Admin</h1>
       </div>
 
-      <div className="admin-tabs">
-        {TABS.map((t) => (
-          <button key={t.id} className={t.id === "overview" ? "active" : ""} onClick={onOpenPromo}>
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <TabBar active="overview" onNavigate={onNavigate} />
 
       {error ? (
         <div className="empty" style={{ padding: "24px 16px" }}>
@@ -118,7 +126,7 @@ function Overview({ navigate, onOpenPromo }) {
 
           <div className="hstack" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
             <div className="group-label" style={{ marginTop: 0 }}>Revenue</div>
-            <button className="chip-link" onClick={onOpenPromo}>Manage promo codes →</button>
+            <button className="chip-link" onClick={() => onNavigate("promo")}>Manage promo codes →</button>
           </div>
           <div className="card admin-tile revenue-tile">
             <div className="stat-val">{formatPaise(stats.revenue)}</div>
@@ -179,7 +187,7 @@ function Overview({ navigate, onOpenPromo }) {
   );
 }
 
-function PromoCodes({ navigate, onBack }) {
+function PromoCodes({ onNavigate }) {
   const [codes, setCodes] = useState(null);
   const [error, setError] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -299,19 +307,13 @@ function PromoCodes({ navigate, onBack }) {
   return (
     <div className="page">
       <div className="screen-head">
-        <button className="back" onClick={onBack}>
+        <button className="back" onClick={() => onNavigate("overview")}>
           <ChevronLeft size={18} /> Admin
         </button>
         <h1 className="screen-title">Promo codes</h1>
       </div>
 
-      <div className="admin-tabs">
-        {TABS.map((t) => (
-          <button key={t.id} className={t.id === "promo" ? "active" : ""} onClick={t.id === "promo" ? undefined : onBack}>
-            {t.label}
-          </button>
-        ))}
-      </div>
+      <TabBar active="promo" onNavigate={onNavigate} />
 
       <div className="hstack" style={{ justifyContent: "space-between", margin: "16px 0 12px" }}>
         <Button variant="btn-outline btn-sm" onClick={openCreate} icon={<Plus size={15} />}>
@@ -488,5 +490,210 @@ function PromoCodes({ navigate, onBack }) {
         )}
       </Sheet>
     </div>
+  );
+}
+
+const EMPTY_FEST = {
+  date: toDateInput(new Date()),
+  title: "",
+  body: "",
+  active: true,
+};
+
+function Festivals({ onNavigate }) {
+  const [items, setItems] = useState(null);
+  const [error, setError] = useState("");
+  const [formOpen, setFormOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(EMPTY_FEST);
+  const [saving, setSaving] = useState(false);
+
+  async function load() {
+    const data = await api.get("/api/admin/festivals");
+    setItems(data.festivals);
+  }
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const data = await api.get("/api/admin/festivals");
+        if (alive) setItems(data.festivals);
+      } catch (err) {
+        if (alive) setError(err.message || "Could not load festivals.");
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  function openCreate() {
+    setEditing(null);
+    setForm(EMPTY_FEST);
+    setFormOpen(true);
+  }
+
+  function openEdit(f) {
+    setEditing(f);
+    setForm({ date: f.date, title: f.title, body: f.body || "", active: f.active !== false });
+    setFormOpen(true);
+  }
+
+  async function saveForm() {
+    if (!form.title.trim() || !form.body.trim()) {
+      window.alert("Both a title and a message are required.");
+      return;
+    }
+    const body = { date: form.date, title: form.title.trim(), body: form.body.trim(), active: form.active };
+    setSaving(true);
+    try {
+      if (editing) await api.patch(`/api/admin/festivals/${editing._id}`, body);
+      else await api.post("/api/admin/festivals", body);
+      setFormOpen(false);
+      setSaving(false);
+      await load();
+    } catch (err) {
+      setSaving(false);
+      window.alert(err.message || "Could not save the festival/event.");
+    }
+  }
+
+  async function toggleActive(f) {
+    try {
+      await api.patch(`/api/admin/festivals/${f._id}`, { active: !(f.active !== false) });
+      await load();
+    } catch (err) {
+      window.alert(err.message || "Could not update the festival/event.");
+    }
+  }
+
+  async function remove(f) {
+    if (!window.confirm(`Delete "${f.title}"? It will no longer broadcast.`)) return;
+    try {
+      await api.del(`/api/admin/festivals/${f._id}`);
+      await load();
+    } catch (err) {
+      window.alert(err.message || "Could not delete the festival/event.");
+    }
+  }
+
+  return (
+    <div className="page">
+      <div className="screen-head">
+        <button className="back" onClick={() => onNavigate("overview")}>
+          <ChevronLeft size={18} /> Admin
+        </button>
+        <h1 className="screen-title">Festivals & events</h1>
+      </div>
+
+      <TabBar active="festivals" onNavigate={onNavigate} />
+
+      <p className="small muted" style={{ margin: "12px 0" }}>
+        Each day here is broadcast to every user with notifications on, at 9:00
+        AM IST on that date. Deactivate any you don't want sent. Delete what you
+        never want again.
+      </p>
+
+      <div className="hstack" style={{ justifyContent: "space-between", margin: "12px 0" }}>
+        <Button variant="btn-outline btn-sm" onClick={openCreate} icon={<Plus size={15} />}>
+          New festival/event
+        </Button>
+      </div>
+
+      {error ? (
+        <div className="empty" style={{ padding: "24px 16px" }}>
+          <div className="empty-icon">🔒</div>
+          <h3>Not allowed</h3>
+          <p>{error}</p>
+        </div>
+      ) : !items ? (
+        <Skeleton lines={5} />
+      ) : items.length === 0 ? (
+        <div className="empty" style={{ padding: "24px 16px" }}>
+          <div className="empty-icon">🎉</div>
+          <h3>No festivals yet</h3>
+          <p>Add a date with a greeting to send out an automatic push.</p>
+        </div>
+      ) : (
+        <div className="list-card" style={{ padding: "4px 16px" }}>
+          {items.map((f) => (
+            <div key={f._id} className="set-row" style={{ alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="hstack" style={{ gap: 8, flexWrap: "wrap" }}>
+                  <ChatChip date={f.date} active={f.active !== false} />
+                  <span style={{ fontWeight: 700 }}>{f.title}</span>
+                </div>
+                <div className="small muted" style={{ marginTop: 2 }}>{f.body}</div>
+              </div>
+              <div className="hstack" style={{ gap: 6 }}>
+                <button className="icon-btn" title="Edit" onClick={() => openEdit(f)}>
+                  <Pencil size={15} />
+                </button>
+                <button className="icon-btn" title={f.active !== false ? "Deactivate" : "Activate"} onClick={() => toggleActive(f)}>
+                  <Power size={15} />
+                </button>
+                <button className="icon-btn" title="Delete" style={{ color: "var(--red)" }} onClick={() => remove(f)}>
+                  <Trash2 size={15} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="hstack" style={{ gap: 8, marginTop: 16, justifyContent: "center", color: "var(--fg-secondary)" }}>
+        <ShieldCheck size={15} /> Server-protected · admins only
+      </div>
+
+      <Sheet open={formOpen} onClose={() => setFormOpen(false)} title={editing ? `Edit ${editing.title}` : "New festival/event"}>
+        <Field label="Date (IST)" hint="The push fires at 9:00 AM IST on this date.">
+          <input className="input" type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
+        </Field>
+        <Field label="Title">
+          <input
+            className="input"
+            value={form.title}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
+            placeholder="e.g. Happy Diwali! 🪔"
+            maxLength={120}
+          />
+        </Field>
+        <Field label="Message" hint="One short, warm English line — shown inside the push.">
+          <textarea
+            className="input"
+            rows={3}
+            value={form.body}
+            onChange={(e) => setForm({ ...form, body: e.target.value })}
+            placeholder="e.g. Light, laughter and sweets — may your savings shine brightest."
+            maxLength={500}
+          />
+        </Field>
+        <Field label="Active">
+          <Switch checked={form.active} onChange={(v) => setForm({ ...form, active: v })} />
+        </Field>
+        <div className="modal-actions">
+          <Button variant="btn-outline" onClick={() => setFormOpen(false)}>Cancel</Button>
+          <Button variant="btn-primary" onClick={saveForm} loading={saving}>
+            {editing ? "Save changes" : "Add festival/event"}
+          </Button>
+        </div>
+      </Sheet>
+    </div>
+  );
+}
+
+function ChatChip({ date, active }) {
+  return (
+    <span
+      className="chip"
+      style={{
+        whiteSpace: "nowrap",
+        background: active ? "rgba(16,185,129,.12)" : "rgba(100,116,139,.12)",
+        color: active ? "var(--green)" : "var(--fg-secondary)",
+      }}
+    >
+      {date}
+    </span>
   );
 }

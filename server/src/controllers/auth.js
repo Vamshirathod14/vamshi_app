@@ -11,6 +11,7 @@ import
 } from "../services/token.js";
 import { ApiError, asyncHandler } from "../middleware/handle.js";
 import { ensureUserDefaults } from "../config/seed.js";
+import { env } from "../config/env.js";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -28,12 +29,23 @@ const passwordSchema = z.object({
   newPassword: z.string().min(6).max(128),
 });
 
+// Emails listed in ADMIN_EMAILS (env) are automatically promoted to admin so
+// the owner can manage promotions and festival broadcasts from the panel.
+async function promoteIfAdmin(user) {
+  if (env.adminEmails.includes(user.email.toLowerCase()) && user.role !== "admin") {
+    user.role = "admin";
+    await user.save();
+  }
+  return user;
+}
+
 export const login = asyncHandler(async (req, res) => {
   const { email, password } = loginSchema.parse(req.body);
   const user = await User.findOne({ email: email.toLowerCase() });
   if (!user || !(await user.verifyPassword(password))) {
     throw new ApiError(401, "Email or password is incorrect.");
   }
+  await promoteIfAdmin(user);
   await issueAccessToken(user, req);
   await issueRefreshToken(user, req);
   return res.json({ user: user.toSafe() });
@@ -44,6 +56,7 @@ export const register = asyncHandler(async (req, res) => {
   const exists = await User.findOne({ email: data.email.toLowerCase() });
   if (exists) throw new ApiError(409, "An account with that email already exists.");
   const user = new User({ name: data.name, email: data.email.toLowerCase() });
+  await promoteIfAdmin(user);
   await user.setPassword(data.password);
   await user.save();
   await ensureUserDefaults(user._id);
@@ -72,6 +85,7 @@ export const me = asyncHandler(async (req, res) => {
     req.user.defaultsSeeded = true;
     await req.user.save();
   }
+  await promoteIfAdmin(req.user);
   return res.json({ user: req.user.toSafe() });
 });
 

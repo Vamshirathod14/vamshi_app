@@ -68,6 +68,13 @@ export const env = {
     email: process.env.BOOTSTRAP_EMAIL || "me@localhost",
     password: process.env.BOOTSTRAP_PASSWORD || "changeme123",
   },
+  // Accounts whose email appears here are auto-promoted to admin on login /
+  // register / session refresh — they can manage promo codes and festival
+  // broadcasts. Comma-separated list, e.g. "you@gmail.com,me@outlook.com".
+  adminEmails: (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean),
   maxReceiptSizeMb: num(process.env.MAX_RECEIPT_SIZE_MB, 5),
 
   // Web Push (VAPID). Public key is safe to send to browsers; the private key
