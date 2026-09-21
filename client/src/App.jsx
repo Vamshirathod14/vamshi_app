@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import { DataProvider } from "./context/DataContext.jsx";
 import { ToastProvider } from "./context/ToastContext.jsx";
+import AlarmSiren from "./components/AlarmSiren.jsx";
 
 const Login = lazy(() => import("./screens/Login.jsx"));
 const Register = lazy(() => import("./screens/Register.jsx"));
@@ -137,6 +138,7 @@ export default function App() {
     <ToastProvider>
       <AuthProvider>
         <Router />
+        <AlarmSiren />
       </AuthProvider>
     </ToastProvider>
   );

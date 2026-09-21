@@ -11,6 +11,7 @@ const reminderSchema = z.object({
   repeat: z.enum(["none", "daily", "weekly", "monthly", "yearly"]).default("none"),
   priority: z.enum(["high", "medium", "low"]).default("medium"),
   notificationEnabled: z.boolean().optional().default(true),
+  alarmMode: z.boolean().optional().default(true),
 });
 
 export const list = asyncHandler(async (req, res) => {

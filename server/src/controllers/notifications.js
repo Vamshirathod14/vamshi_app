@@ -186,6 +186,28 @@ export const pushAck = asyncHandler(async (req, res) => {
   return res.status(204).end();
 });
 
+/** Stop a ringing alarm early. Called when the user taps/dismisses the alarm
+ * (via the SW) or hits the in-app Dismiss button. Completing the one-off
+ * reminder makes the scheduler skip every later burst tick. */
+export const ackAlarm = asyncHandler(async (req, res) => {
+  const { reminderId } = z
+    .object({ reminderId: z.string().regex(/^[a-f\d]{24}$/i) })
+    .parse(req.body || {});
+  const { Reminder } = await import("../models/Reminder.js");
+  const reminder = await Reminder.findOne({
+    _id: reminderId,
+    userId: req.user._id,
+  });
+  if (!reminder) throw new ApiError(404, "Reminder not found.");
+  if (reminder.completed) return res.json({ ok: true });
+  reminder.completed = true;
+  await reminder.save();
+  console.info(
+    `[push] alarm acknowledged — reminder ${reminderId} silenced`,
+  );
+  return res.json({ ok: true });
+});
+
 /** One-tap diagnostic: user gate, subscriptions, recent reminders, scheduler
  * liveness — everything needed to explain why a reminder did or didn't push. */
 export const pushDiag = asyncHandler(async (req, res) => {

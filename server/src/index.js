@@ -50,7 +50,9 @@ async function start() {
     }
   };
   pushTick();
-  setInterval(pushTick, 30 * 1000).unref();
+  // 10s cadence so the 15s alarm-burst ticks land reliably (scheduler is
+  // idempotent via PushDelivery unique keys, safe across restarts).
+  setInterval(pushTick, 10 * 1000).unref();
 }
 
 start().catch((err) => {

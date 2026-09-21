@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
-import { Sheet, Button, Field, Segmented } from "./UI.jsx";
+import { Sheet, Button, Field, Segmented, Switch } from "./UI.jsx";
 import { toDateInput } from "../utils/format.js";
 
 const NOW = new Date();
@@ -17,6 +17,7 @@ export default function ReminderForm({ open, onClose, onSuccess, reminder = null
   const [time, setTime] = useState(`${String(NOW.getHours()).padStart(2, "0")}:${String(NOW.getMinutes()).padStart(2, "0")}`);
   const [repeat, setRepeat] = useState("none");
   const [priority, setPriority] = useState("medium");
+  const [alarmMode, setAlarmMode] = useState(true);
 
   useEffect(() => {
     if (!open) return;
@@ -27,6 +28,7 @@ export default function ReminderForm({ open, onClose, onSuccess, reminder = null
       setTime(reminder.time || "20:00");
       setRepeat(reminder.repeat || "none");
       setPriority(reminder.priority || "medium");
+      setAlarmMode(reminder.alarmMode !== false);
     } else {
       setTitle("");
       setDescription("");
@@ -34,6 +36,7 @@ export default function ReminderForm({ open, onClose, onSuccess, reminder = null
       setTime(`${String(NOW.getHours()).padStart(2, "0")}:${String(NOW.getMinutes()).padStart(2, "0")}`);
       setRepeat("none");
       setPriority("medium");
+      setAlarmMode(true);
     }
   }, [open, reminder]);
 
@@ -54,6 +57,7 @@ export default function ReminderForm({ open, onClose, onSuccess, reminder = null
         time,
         repeat,
         priority,
+        alarmMode,
       };
       if (isEdit) await api.patch(`/api/reminders/${reminder._id}`, body);
       else await api.post("/api/reminders", body);
@@ -93,6 +97,9 @@ export default function ReminderForm({ open, onClose, onSuccess, reminder = null
           value={repeat}
           onChange={setRepeat}
         />
+      </Field>
+      <Field label="Ring like an alarm" hint="Keeps buzzing every ~15s for 1 minute until you tap it or press Dismiss.">
+        <Switch checked={alarmMode} onChange={setAlarmMode} />
       </Field>
       <Field label="Priority">
         <Segmented

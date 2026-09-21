@@ -78,6 +78,14 @@ export const schedulerState = {
   lastError: null,
 };
 
+// Alarm burst: repeat the reminder push every ALARM_TICK_MS for ALARM_WINDOW_MS
+// (≈4 ticks / 1 minute) so it rings like an alarm until dismissed or timeout.
+const ALARM_WINDOW_MS = 60_000;
+const ALARM_TICK_MS = 15_000;
+const ALARM_TICKS = ALARM_WINDOW_MS / ALARM_TICK_MS; // 4
+
+let lastQuietLogAt = 0;
+
 // ================= Greetings & festival broadcasts =================
 // The app's audience runs on IST (+5:30). The server may be UTC (Render) or
 // IST (laptop) — derive the IST wall-clock explicitly so these fire at the
@@ -201,9 +209,12 @@ export async function scanDueNotifications(now = new Date()) {
   }).lean();
   schedulerState.lastSweepAt = new Date();
   schedulerState.lastRemindersSeen = dueReminders.length;
-  console.info(
-    `[push] sweep @${now.toISOString()}: ${dueReminders.length} reminder(s) due`,
-  );
+  if (dueReminders.length > 0 || now.getTime() - lastQuietLogAt >= 90_000) {
+    console.info(
+      `[push] sweep @${now.toISOString()}: ${dueReminders.length} reminder(s) due`,
+    );
+    lastQuietLogAt = now.getTime();
+  }
   if (dueReminders.length > 0) {
     console.info(
       `[push] reminders now: ${dueReminders.map((r) => `"${r.title}"`).join(", ")}`,
@@ -212,6 +223,44 @@ export async function scanDueNotifications(now = new Date()) {
 
   for (const r of dueReminders) {
     const scheduledTime = r.date;
+
+    // ----- Alarm mode: ring every ~15s for a minute until dismissed -----
+    if (r.repeat === "none" && r.alarmMode !== false) {
+      const elapsed = now.getTime() - scheduledTime.getTime();
+      if (elapsed >= ALARM_WINDOW_MS) {
+        // Ringing window passed without a dismissal → stop and complete.
+        await Reminder.updateOne({ _id: r._id }, { $set: { completed: true } });
+        continue;
+      }
+      const tick = Math.max(
+        0,
+        Math.min(ALARM_TICKS - 1, Math.floor(elapsed / ALARM_TICK_MS)),
+      );
+      const tickTime = new Date(scheduledTime.getTime() + tick * ALARM_TICK_MS);
+      const settings = await notificationSettings(r.userId);
+
+      console.info(
+        `[push] alarm reminder "${r.title}" user=${String(r.userId).slice(-6)} tick=${tick} push=${settings.push}`,
+      );
+      counts.reminders++;
+      const res = await deliverScheduledNotification({
+        userId: r.userId,
+        source: "reminder",
+        deliveryKey: deliveryKey("alarm", r.userId, r._id, tickTime),
+        referenceId: r._id,
+        scheduledTime: tickTime,
+        title: r.title,
+        body: r.description || "Your Vamshi reminder is due.",
+        url: "/reminders",
+        createInAppNotification: tick === 0 && settings.inApp,
+        push: settings.push,
+        extra: { alarm: true, tick, alarmWindowMs: ALARM_WINDOW_MS },
+      });
+      res.deduped ? counts.deduped++ : (counts.notified += res.notified || 0);
+      continue;
+    }
+
+    // ----- Single-fire: non-alarm one-offs and repeating reminders -----
     const key = deliveryKey("reminder", r.userId, r._id, scheduledTime);
     const settings = await notificationSettings(r.userId);
 

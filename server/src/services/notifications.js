@@ -40,6 +40,7 @@ export async function deliverScheduledNotification({
   url = "/",
   createInAppNotification = true,
   push = true,
+  extra = null,
 }) {
   const { PushDelivery } = await import("../models/PushDelivery.js");
   let claimed;
@@ -82,7 +83,15 @@ export async function deliverScheduledNotification({
   if (push) {
     result = await pushToDevice(
       userId,
-      { type: source, title, body, url, referenceId, deliveryId: claimedId },
+      {
+        type: source,
+        title,
+        body,
+        url,
+        referenceId,
+        deliveryId: claimedId,
+        ...(extra || {}),
+      },
     );
   }
   return result;

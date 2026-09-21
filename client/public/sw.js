@@ -134,18 +134,27 @@ self.addEventListener("push", (event) => {
   }
   const type = String(data.type || "system");
   const title = data.title || (type === "test" ? "Vamshi Notifications" : "Vamshi");
+  const alarm = data.alarm === true;
+  // Alarm ticks share one tag so each repeat replaces the last — one bumping
+  // notification that buzzes/sounds again rather than a pile of duplicates.
   const base = {
     body: data.body || "You have a new update in Vamshi.",
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
-    tag: data.tag || data.deliveryId || `vamshi-${type}`,
+    tag: alarm
+      ? `vamshi-alarm-${data.referenceId || data.deliveryId}`
+      : data.tag || data.deliveryId || `vamshi-${type}`,
     renotify: true,
+    ...(alarm ? { requireInteraction: true } : {}),
     data: {
       url: coerceUrl(data.url),
       type,
       deliveryId: data.deliveryId || null,
+      referenceId: data.referenceId || null,
+      alarm,
     },
   };
+  if (alarm) base.vibrate = [250, 120, 250, 120, 500, 120, 250];
   const ts = Number(data.timestamp);
   if (Number.isFinite(ts) && ts > 0) base.timestamp = ts;
   if (data.requireInteraction) base.requireInteraction = true;
@@ -164,6 +173,7 @@ self.addEventListener("push", (event) => {
           await self.registration.showNotification(title, {
             body: base.body,
             data: base.data,
+            ...(alarm ? { vibrate: base.vibrate } : {}),
           });
           shown = true;
         } catch (e2) {
@@ -178,7 +188,13 @@ self.addEventListener("push", (event) => {
       });
       for (const c of clients) {
         try {
-          c.postMessage({ type: "vamshi-push", title, body: base.body, shown });
+          c.postMessage({
+            type: alarm ? "vamshi-alarm" : "vamshi-push",
+            title,
+            body: base.body,
+            shown,
+            referenceId: data.referenceId || null,
+          });
         } catch {
           // ignore
         }
@@ -193,8 +209,25 @@ self.addEventListener("notificationclose", () => {
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const target = coerceUrl(event.notification.data && event.notification.data.url);
+  const nd = event.notification.data || {};
+  const target = coerceUrl(nd.url);
   const targetUrl = new URL(target, self.location.origin).href;
+  const referenceId = nd.referenceId;
+
+  // Alarm tap = dismiss. Tell the server immediately so the ring stops even
+  // before the app finishes opening. Best-effort.
+  if (referenceId && (nd.alarm || nd.type === "reminder")) {
+    try {
+      fetch("/api/notifications/push/ack-alarm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reminderId: referenceId }),
+        credentials: "same-origin",
+      }).catch(() => {});
+    } catch {
+      // ignore
+    }
+  }
 
   event.waitUntil(
     (async () => {

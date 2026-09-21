@@ -292,6 +292,7 @@ test("a due reminder notifies exactly once (in-app + device)", async () => {
     time: "12:00",
     repeat: "none",
     notificationEnabled: true,
+    alarmMode: false, // single-fire path (an alarm rings repeatedly instead)
     completed: false,
   });
 
@@ -344,10 +345,48 @@ test("a due reminder notifies exactly once (in-app + device)", async () => {
   assert.equal(doneReminder.completed, true, "one-off reminder completes after firing");
 });
 
+// ---------- Alarm mode: rings until dismissed or window closes ----------
+test("alarm-mode reminders ring at tick 0 and stay ringing until window close/ack", async () => {
+  const alarm = await Reminder.create({
+    userId: await userAId(),
+    title: "Wake up now",
+    date: new Date(Date.now() - 10 * 1000),
+    repeat: "none",
+    notificationEnabled: true,
+    completed: false,
+    // alarmMode left unset → must default to true
+  });
+
+  webpush.sendNotification = async () => {
+    sent.push(1);
+    return { statusCode: 201 };
+  };
+
+  const sweep = await scanDueNotifications();
+  assert.equal(sweep.reminders >= 1, true, "sweep should ring the alarm reminder");
+
+  const done = await Reminder.findById(alarm._id);
+  assert.equal(done.completed, false, "alarm must NOT complete while inside the 60s window");
+
+  const keys = await PushDelivery.find({
+    source: "reminder",
+    referenceId: alarm._id,
+  })
+    .select("deliveryKey")
+    .lean();
+  assert.equal(keys.length, 1, "exactly one alarm tick after a single sweep");
+  assert.ok(
+    keys.some((k) => k.deliveryKey.startsWith("alarm:")),
+    "alarm ticks claim the alarm- scoped key",
+  );
+});
+
 test("in-app list endpoint exposes the scheduler notification", async () => {
   const { status, data } = await api("/api/notifications");
   assert.equal(status, 200);
-  const item = data.notifications.find((n) => n.type === "reminder");
+  const item = data.notifications.find(
+    (n) => n.type === "reminder" && n.title.includes("electric"),
+  );
   assert.ok(item, "list should include the reminder notification");
   assert.ok(item.title.includes("electric"));
   assert.ok(item.read === false);

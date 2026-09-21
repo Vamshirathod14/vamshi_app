@@ -13,6 +13,9 @@ const reminderSchema = new mongoose.Schema(
     repeat: { type: String, enum: REPEAT_TYPES, default: "none" },
     priority: { type: String, enum: PRIORITIES, default: "medium" },
     notificationEnabled: { type: Boolean, default: true },
+    // Alarm behaviour: ring like an alarm — repeat the push every ~15s for up
+    // to a minute (4 ticks) until dismissed, instead of a single notification.
+    alarmMode: { type: Boolean, default: true },
     snooze: {
       lastSnoozedAt: { type: Date, default: null },
       times: { type: Number, default: 0 },
