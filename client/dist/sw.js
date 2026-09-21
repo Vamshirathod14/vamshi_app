@@ -1,4 +1,4 @@
-const CACHE = "vamshi-v3";
+const CACHE = "vamshi-push-v1";
 const SHELL = [
   "/",
   "/index.html",
@@ -81,6 +81,85 @@ self.addEventListener("fetch", (event) => {
         if (cached) return cached;
         return Response.error();
       }
+    })(),
+  );
+});
+
+// ---------------- Web Push ----------------
+
+// Only routes the app actually owns. Used to build the notification click
+// target — never external, never user-supplied.
+const INTERNAL_ROUTES = new Set([
+  "/",
+  "/dashboard",
+  "/reminders",
+  "/tasks",
+  "/notifications",
+  "/settings",
+]);
+
+function coerceUrl(raw) {
+  if (typeof raw !== "string") return "/";
+  const path = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/" + raw;
+  const first = path.split("?")[0].split("#")[0];
+  if (INTERNAL_ROUTES.has(first)) return path;
+  return "/";
+}
+
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? (event.data.json() || {}) : {};
+  } catch {
+    data = {};
+  }
+  const type = String(data.type || "system");
+  const title = data.title || (type === "test" ? "Vamshi Notifications" : "Vamshi");
+  const options = {
+    body: data.body || "You have a new update in Vamshi.",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/icon-192.png",
+    tag: data.tag || data.deliveryId || `vamshi-${type}`,
+    data: {
+      url: coerceUrl(data.url),
+      type,
+      deliveryId: data.deliveryId || null,
+    },
+    timestamp: data.timestamp || Date.now(),
+    renotify: true,
+  };
+  if (data.requireInteraction) options.requireInteraction = true;
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclose", () => {
+  // Not actionable per spec (data cleared after close) — kept for completeness.
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = coerceUrl(event.notification.data && event.notification.data.url);
+  const targetUrl = new URL(target, self.location.origin).href;
+
+  event.waitUntil(
+    (async () => {
+      // Reuse an already-open app window, else open one.
+      const clients = await self.clients.matchAll({
+        type: "window",
+        includeUncontrolled: true,
+      });
+      for (const client of clients) {
+        if (client.url && client.url.startsWith(self.location.origin)) {
+          await client.focus();
+          try {
+            await client.navigate(targetUrl);
+          } catch {
+            // page may be in-app; focusing was enough
+          }
+          return;
+        }
+      }
+      await self.clients.openWindow(targetUrl);
     })(),
   );
 });

@@ -14,3 +14,5 @@ export { SessionToken } from "./Token.js";
 export { Payment } from "./Payment.js";
 export { PromoCode } from "./PromoCode.js";
 export { PromoCodeUsage } from "./PromoCodeUsage.js";
+export { PushSubscription } from "./PushSubscription.js";
+export { PushDelivery } from "./PushDelivery.js";

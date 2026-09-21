@@ -4,11 +4,18 @@ import { seed } from "./config/seed.js";
 import { env } from "./config/env.js";
 import { runRecurringEngine } from "./controllers/recurring.js";
 import { ensureUploadDir } from "./controllers/receipts.js";
+import { scanDueNotifications } from "./services/scheduler.js";
+import { configurePush } from "./services/notifications.js";
 
 async function start() {
   await connectDb();
   await ensureUploadDir();
   await seed();
+  if (configurePush()) {
+    console.log("[push] VAPID configured — device notifications enabled.");
+  } else {
+    console.log("[push] VAPID keys missing — device notifications disabled.");
+  }
 
   const app = createApp();
   app.listen(env.port, () => {
@@ -26,6 +33,24 @@ async function start() {
   };
   tick();
   setInterval(tick, 5 * 60 * 1000).unref();
+
+  // push scheduler: poll for due reminders/task reminders every 30s + on boot.
+  // Idempotent via PushDelivery unique deliveryKey, safe across restarts.
+  const pushTick = async () => {
+    try {
+      const counts = await scanDueNotifications();
+      if (counts.reminders + counts.tasks > 0) {
+        console.log(
+          `[push] sweep: ${counts.reminders} reminders, ${counts.tasks} tasks, ` +
+            `${counts.notified} device notification(s), ${counts.deduped} skipped (already sent)`,
+        );
+      }
+    } catch (err) {
+      console.error("[push] scheduler error:", err.message);
+    }
+  };
+  pushTick();
+  setInterval(pushTick, 30 * 1000).unref();
 }
 
 start().catch((err) => {

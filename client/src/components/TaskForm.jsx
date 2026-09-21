@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
-import { Sheet, Button, Field, Segmented } from "./UI.jsx";
+import { Sheet, Button, Field, Segmented, Switch } from "./UI.jsx";
 import { toDateInput, toTimeInput } from "../utils/format.js";
 
 export default function TaskForm({ open, onClose, onSuccess, task = null }) {
@@ -14,6 +14,7 @@ export default function TaskForm({ open, onClose, onSuccess, task = null }) {
   const [dueTime, setDueTime] = useState("");
   const [priority, setPriority] = useState("medium");
   const [noDue, setNoDue] = useState(false);
+  const [remind, setRemind] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -24,6 +25,7 @@ export default function TaskForm({ open, onClose, onSuccess, task = null }) {
       setDueTime(task.dueTime || "");
       setPriority(task.priority || "medium");
       setNoDue(!task.dueDate);
+      setRemind(!task.dueDate ? false : !!task.reminderEnabled);
     } else {
       setTitle("");
       setDescription("");
@@ -31,6 +33,7 @@ export default function TaskForm({ open, onClose, onSuccess, task = null }) {
       setDueTime("");
       setPriority("medium");
       setNoDue(false);
+      setRemind(false);
     }
   }, [open, task]);
 
@@ -47,6 +50,7 @@ export default function TaskForm({ open, onClose, onSuccess, task = null }) {
         dueDate: noDue ? null : dueDate,
         dueTime: dueTime || null,
         priority,
+        reminderEnabled: !noDue && remind,
       };
       if (isEdit) await api.patch(`/api/tasks/${task._id}`, body);
       else await api.post("/api/tasks", body);
@@ -94,6 +98,17 @@ export default function TaskForm({ open, onClose, onSuccess, task = null }) {
           <input className="input" type="time" value={dueTime} onChange={(e) => setDueTime(e.target.value)} disabled={noDue} />
         </Field>
       </div>
+      {!noDue && (
+        <div className="hstack" style={{ marginBottom: 12, alignItems: "center" }}>
+          <span style={{ flex: 1 }}>
+            <span className="small" style={{ fontWeight: 600 }}>Remind me</span>
+            <span className="small muted" style={{ display: "block" }}>
+              Notify me when this task is due.
+            </span>
+          </span>
+          <Switch checked={remind} onChange={setRemind} />
+        </div>
+      )}
       <Button className="btn-block" onClick={save} loading={loading} variant="btn-primary">
         {isEdit ? "Update Task" : "Add Task"}
       </Button>

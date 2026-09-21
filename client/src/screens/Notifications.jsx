@@ -3,15 +3,29 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Trash2, CheckCheck } from "lucide-react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
+import { usePushNotifications } from "../hooks/usePushNotifications.js";
 import Layout from "../components/Layout.jsx";
 import { EmptyState, Skeleton } from "../components/UI.jsx";
 import { timeAgo } from "../utils/format.js";
 
-const ICONS = { success: "✅", warning: "⚠️", info: "ℹ️", danger: "⛔" };
+const TYPE_ICONS = {
+  task: "📋",
+  reminder: "⏰",
+  payment: "💳",
+  recurring: "🔁",
+  budget: "🎯",
+  goal: "🎯",
+  summary: "📊",
+  system: "ℹ️",
+};
+const severityIcon = (sev) =>
+  sev === "danger" || sev === "critical" ? "⛔" : sev === "warning" ? "⚠️" : sev === "success" ? "✅" : "";
+const iconOf = (n) => severityIcon(n.severity) || TYPE_ICONS[n.type] || "ℹ️";
 
 export default function Notifications() {
   const navigate = useNavigate();
   const { push } = useToast();
+  const pushHook = usePushNotifications();
   const [items, setItems] = useState([]);
   const [unread, setUnread] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -91,6 +105,31 @@ export default function Notifications() {
 
         {unread > 0 && <button className="small muted" style={{ marginBottom: 14 }} onClick={markAll}>Mark all as read</button>}
 
+        {pushHook.supported && !pushHook.enabled && (
+          <div className="list-card" style={{ padding: 16, marginBottom: 14 }}>
+            <div style={{ fontWeight: 600 }}>🔔 Enable device notifications</div>
+            <p className="small muted" style={{ margin: "6px 0 12px" }}>
+              Get reminders and task alerts on this device even when Vamshi is closed.
+            </p>
+            <button
+              className="btn btn-primary btn-sm"
+              disabled={pushHook.busy}
+              style={{ border: "none", cursor: "pointer" }}
+              onClick={async () => {
+                const ok = await pushHook.enable();
+                if (ok) push("Notifications enabled on this device.", "success");
+              }}
+            >
+              {pushHook.busy ? "Turning on…" : "Turn on"}
+            </button>
+            {pushHook.message && (
+              <div className="small" style={{ marginTop: 8, color: "var(--accent)" }}>
+                {pushHook.message}
+              </div>
+            )}
+          </div>
+        )}
+
         {loading ? (
           <Skeleton lines={8} />
         ) : items.length === 0 ? (
@@ -99,9 +138,12 @@ export default function Notifications() {
           <div className="list-card">
             {items.map((n) => (
               <button key={n._id} className={`list-row notif-row ${n.read ? "" : "unread"}`} onClick={() => markOne(n)}>
-                <div className="set-ico" style={{ minWidth: 36, height: 36 }}>{ICONS[n.tone] || ICONS.info}</div>
+                <div className="set-ico" style={{ minWidth: 36, height: 36 }}>{iconOf(n)}</div>
                 <div style={{ flex: 1, minWidth: 0, textAlign: "left" }}>
-                  <div style={{ fontWeight: n.read ? 500 : 650 }}>{n.message}</div>
+                  <div style={{ fontWeight: n.read ? 500 : 650 }}>
+                    {n.title || n.message}
+                    {n.body ? <span className="small muted"> — {n.body}</span> : null}
+                  </div>
                   <div className="l-sub">{timeAgo(n.deliveredAt)}</div>
                 </div>
                 <span onClick={(e) => { e.stopPropagation(); remove(n); }} className="icon-btn" style={{ width: 30, height: 30 }} aria-label="Dismiss">

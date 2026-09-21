@@ -1,6 +1,18 @@
+import { z } from "zod";
 import { Notification } from "../models/Notification.js";
+import { PushSubscription } from "../models/PushSubscription.js";
+import { pushToDevice, configurePush } from "../services/notifications.js";
+import { env, vapidConfigured } from "../config/env.js";
 import { asyncHandler, ApiError } from "../middleware/handle.js";
 import { SessionToken } from "../models/Token.js";
+
+const subSchema = z.object({
+  endpoint: z.string().url(),
+  keys: z.object({
+    auth: z.string().min(1).max(512),
+    p256dh: z.string().min(1).max(1024),
+  }),
+});
 
 export const list = asyncHandler(async (req, res) => {
   const notifications = await Notification.find({ userId: req.user._id })
@@ -33,30 +45,107 @@ export const remove = asyncHandler(async (req, res) => {
   return res.json({ message: "Notification removed." });
 });
 
-export const pushSubscribe = asyncHandler(async (req, res) => {
-  const { endpoint, keys } = req.body;
-  if (!endpoint || !keys?.auth || !keys?.p256dh) {
-    throw new ApiError(400, "Invalid push subscription.");
+// ---------------- Web Push endpoints ----------------
+
+export const pushPublicKey = asyncHandler(async (req, res) => {
+  if (!vapidConfigured) {
+    throw new ApiError(
+      503,
+      "Push notifications are not configured on this server yet.",
+      null,
+      "PUSH_NOT_CONFIGURED",
+    );
   }
-  const subscription = { endpoint, keys };
-  const exists = req.user.pushSubscriptions.some(
-    (s) => s.endpoint === endpoint,
-  );
-  if (!exists) {
-    req.user.pushSubscriptions.push(subscription);
-    await req.user.save();
-  }
-  return res.json({ message: "Push subscription registered." });
+  return res.json({ publicKey: env.vapidPublicKey });
 });
 
+export const pushStatus = asyncHandler(async (req, res) => {
+  const count = await PushSubscription.countDocuments({
+    userId: req.user._id,
+    isActive: true,
+  });
+  return res.json({ enabled: count > 0, count });
+});
+
+/** Register / refresh THIS device's push subscription (idempotent). */
+export const pushSubscribe = asyncHandler(async (req, res) => {
+  const { data, error } = subSchema.safeParse(req.body);
+  if (!data) throw new ApiError(400, "Invalid push subscription.", error?.issues);
+
+  const userId = req.user._id;
+  const { endpoint, keys } = data;
+  const fields = {
+    p256dh: keys.p256dh,
+    auth: keys.auth,
+    userAgent: req.headers["user-agent"]?.slice(0, 300) || "",
+    isActive: true,
+    lastUsedAt: new Date(),
+  };
+
+  try {
+    await PushSubscription.create({ userId, endpoint, ...fields });
+  } catch (err) {
+    // Unique (userId, endpoint) exists → reactivate / refresh that device only.
+    if (err?.code === 11000) {
+      await PushSubscription.updateOne(
+        { userId, endpoint },
+        { $set: fields },
+      );
+    } else {
+      throw err;
+    }
+  }
+
+  return res.json({ message: "Push notifications enabled.", enabled: true });
+});
+
+/** Deactivate THIS device's subscription. */
 export const pushUnsubscribe = asyncHandler(async (req, res) => {
-  const { endpoint } = req.body;
+  const { endpoint } = req.body || {};
   if (!endpoint) throw new ApiError(400, "Endpoint required.");
-  req.user.pushSubscriptions = (req.user.pushSubscriptions || []).filter(
-    (s) => s.endpoint !== endpoint,
+
+  await PushSubscription.updateOne(
+    { userId: req.user._id, endpoint },
+    { $set: { isActive: false } },
   );
-  await req.user.save();
-  return res.json({ message: "Push subscription removed." });
+  return res.json({ message: "Push notifications disabled on this device.", enabled: false });
+});
+
+/**
+ * Diagnostic: send one REAL Web Push to every active device of the user.
+ * No fake reminders, no fake scheduled events — just a push.
+ */
+export const pushTest = asyncHandler(async (req, res) => {
+  if (!configurePush()) {
+    throw new ApiError(
+      503,
+      "Push notifications are not configured on this server yet.",
+      null,
+      "PUSH_NOT_CONFIGURED",
+    );
+  }
+  const result = await pushToDevice(req.user._id, {
+    type: "test",
+    title: "Vamshi Notifications",
+    body: "Push notifications are working correctly.",
+    url: "/",
+  });
+  if (result.skipped) {
+    throw new ApiError(
+      503,
+      "Push notifications are not configured on this server yet.",
+      null,
+      "PUSH_NOT_CONFIGURED",
+    );
+  }
+  return res.json({
+    message:
+      result.failed > 0
+        ? `Sent to ${result.notified} device(s), ${result.failed} failed.`
+        : "Test notification sent.",
+    sent: result.notified,
+    failed: result.failed,
+  });
 });
 
 export const clearSessions = asyncHandler(async (req, res) => {

@@ -70,6 +70,13 @@ export const env = {
   },
   maxReceiptSizeMb: num(process.env.MAX_RECEIPT_SIZE_MB, 5),
 
+  // Web Push (VAPID). Public key is safe to send to browsers; the private key
+  // must NEVER leave the server. Configure locally with:
+  //   npx web-push generate-vapid-keys
+  vapidPublicKey: process.env.VAPID_PUBLIC_KEY || "",
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY || "",
+  vapidSubject: process.env.VAPID_SUBJECT || "mailto:admin@vamshi.local",
+
   // Razorpay payments (optional). Without credentials the app still starts and
   // the subscription page reports that payments are not configured so users
   // can never be charged silently.
@@ -87,3 +94,7 @@ export const razorpayConfigured = Boolean(
   env.razorpayKeyId && env.razorpayKeySecret,
 );
 export const razorpayWebhookConfigured = Boolean(env.razorpayWebhookSecret);
+
+export const vapidConfigured = Boolean(
+  env.vapidPublicKey && env.vapidPrivateKey,
+);

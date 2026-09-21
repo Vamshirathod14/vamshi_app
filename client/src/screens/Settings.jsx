@@ -4,6 +4,7 @@ import { ChevronLeft, LogOut, Trash2 } from "lucide-react";
 import { api } from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
+import { usePushNotifications } from "../hooks/usePushNotifications.js";
 import Layout from "../components/Layout.jsx";
 import { Field, Button, Segmented, Switch, Modal } from "../components/UI.jsx";
 
@@ -26,6 +27,7 @@ export default function Settings() {
   const navigate = useNavigate();
   const { user, updateMe, logout } = useAuth();
   const { push } = useToast();
+  const pushHook = usePushNotifications();
   const [name, setName] = useState(user.name || "");
   const [currency, setCurrency] = useState(user.currency || "INR");
   const [saving, setSaving] = useState(false);
@@ -171,6 +173,61 @@ export default function Settings() {
             ))}
           </div>
         )}
+
+        <div className="group-label">Device notifications</div>
+        <div className="list-card" style={{ padding: 16 }}>
+          {!pushHook.supported ? (
+            <div>
+              <div className="small muted">Not supported in this browser.</div>
+              <p className="small muted" style={{ marginTop: 8, marginBottom: 0 }}>
+                On iPhone, install the app to your Home Screen and turn on push
+                in Safari; on desktop use Chrome or Edge.
+              </p>
+            </div>
+          ) : (
+            <>
+              <SwitchRow
+                label="Push on this device"
+                value={pushHook.enabled}
+                onChange={async (v) => {
+                  if (v) await pushHook.enable();
+                  else await pushHook.disable();
+                  pushHook.refresh();
+                }}
+              />
+              {pushHook.enabled ? (
+                <div className="small muted" style={{ marginTop: 10 }}>
+                  Bound to your browser — you'll get reminders even when Vamshi is closed.
+                </div>
+              ) : (
+                <div className="small muted" style={{ marginTop: 10 }}>
+                  Get reminder and task alerts on this device even when the tab is closed.
+                </div>
+              )}
+              {pushHook.message && (
+                <div className="small" style={{ marginTop: 8, color: "var(--accent)" }}>
+                  {pushHook.message}
+                </div>
+              )}
+              <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {pushHook.enabled ? (
+                  <>
+                    <Button variant="btn-outline btn-sm" onClick={pushHook.sendTest} loading={pushHook.busy}>
+                      Test notification
+                    </Button>
+                    <Button variant="btn-outline btn-sm" onClick={pushHook.disable} loading={pushHook.busy} disabled={!pushHook.enabled}>
+                      Disable
+                    </Button>
+                  </>
+                ) : (
+                  <Button variant="btn-primary btn-sm" onClick={pushHook.enable} loading={pushHook.busy}>
+                    Turn on notifications
+                  </Button>
+                )}
+              </div>
+            </>
+          )}
+        </div>
 
         <div className="group-label">Security</div>
         <div className="list-card" style={{ padding: "4px 16px" }}>

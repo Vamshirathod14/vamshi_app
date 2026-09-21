@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Task } from "../models/Task.js";
 import { asyncHandler, ApiError } from "../middleware/handle.js";
-import { toDateOnly, endOfDay } from "../utils/date.js";
+import { toDateOnly, endOfDay, combineDateTime } from "../utils/date.js";
 
 const PRIORITIES = ["high", "medium", "low"];
 const REPEATS = ["none", "daily", "weekly", "monthly"];
@@ -17,6 +17,18 @@ const taskSchema = z.object({
   repeat: z.enum(REPEATS).default("none"),
   noteId: z.string().regex(/^[a-f\d]{24}$/i).nullable().optional(),
 });
+
+// reminderAt is derived server-side from the due date/time (single source of
+// truth): enabling the reminder without a due date is meaningless, and
+// disabling it clears any pending fire.
+function computeReminder(data, existing = {}) {
+  const enabled = data.reminderEnabled ?? existing.reminderEnabled ?? false;
+  if (!enabled) return { reminderEnabled: false, reminderAt: null };
+  const dueDate = data.dueDate ?? existing.dueDate;
+  if (!dueDate) return { reminderEnabled: false, reminderAt: null };
+  const dueTime = data.dueTime ?? existing.dueTime ?? "23:59";
+  return { reminderEnabled: true, reminderAt: combineDateTime(dueDate, dueTime) };
+}
 
 export const list = asyncHandler(async (req, res) => {
   const { filter = "all", q } = req.query;
@@ -46,15 +58,19 @@ export const list = asyncHandler(async (req, res) => {
 
 export const create = asyncHandler(async (req, res) => {
   const data = taskSchema.parse(req.body);
-  const task = await Task.create({ userId: req.user._id, ...data });
+  const reminder = computeReminder(data);
+  const task = await Task.create({ userId: req.user._id, ...data, ...reminder });
   return res.status(201).json({ task });
 });
 
 export const update = asyncHandler(async (req, res) => {
   const data = taskSchema.partial().parse(req.body);
+  const existing = await Task.findOne({ _id: req.params.id, userId: req.user._id });
+  if (!existing) throw new ApiError(404, "Task not found.");
+  const reminder = computeReminder(data, existing);
   const task = await Task.findOneAndUpdate(
     { _id: req.params.id, userId: req.user._id },
-    { $set: data },
+    { $set: { ...data, ...reminder } },
     { new: true, runValidators: true },
   );
   if (!task) throw new ApiError(404, "Task not found.");
