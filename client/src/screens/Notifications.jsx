@@ -138,19 +138,6 @@ export default function Notifications() {
               closed. No popup during tests? Check System Settings → Notifications
               → Google Chrome (allow notifications) and make sure Focus/DND is off.
             </p>
-            <button
-              className="btn btn-sm"
-              disabled={pushHook.busy}
-              style={{ border: "1px solid var(--accent)", color: "var(--accent)", background: "transparent", cursor: "pointer" }}
-              onClick={() => pushHook.sendTest()}
-            >
-              {pushHook.busy ? "Sending…" : "Send test notification"}
-            </button>
-            {pushHook.message && (
-              <div className="small" style={{ marginTop: 8, color: "var(--accent)" }}>
-                {pushHook.message}
-              </div>
-            )}
           </div>
         )}
 
