@@ -85,7 +85,7 @@ export async function scanDueNotifications(now = new Date()) {
   // Catch-up: past-due NON-repeating reminders older than a day are silently
   // completed instead of spamming a fresh feature with a backlog of missed
   // alarms.
-  await Reminder.updateMany(
+  const archived = await Reminder.updateMany(
     {
       completed: false,
       repeat: "none",
@@ -94,6 +94,11 @@ export async function scanDueNotifications(now = new Date()) {
     },
     { $set: { completed: true } },
   );
+  if (archived.modifiedCount > 0) {
+    console.info(
+      `[push] archived ${archived.modifiedCount} stale one-off reminder(s) (>12h overdue)`,
+    );
+  }
 
   // ---- Reminders ----
   const dueReminders = await Reminder.find({
@@ -101,11 +106,20 @@ export async function scanDueNotifications(now = new Date()) {
     notificationEnabled: true,
     date: { $lte: now },
   }).lean();
+  if (dueReminders.length > 0) {
+    console.info(
+      `[push] sweep @${now.toISOString()}: ${dueReminders.length} reminder(s) due now`,
+    );
+  }
 
   for (const r of dueReminders) {
     const scheduledTime = r.date;
     const key = deliveryKey("reminder", r.userId, r._id, scheduledTime);
     const settings = await notificationSettings(r.userId);
+
+    console.info(
+      `[push] firing reminder "${r.title}" user=${String(r.userId).slice(-6)} push=${settings.push} inApp=${settings.inApp}`,
+    );
 
     counts.reminders++;
     if (settings.inApp && !settings.push) {
