@@ -345,8 +345,8 @@ test("a due reminder notifies exactly once (in-app + device)", async () => {
   assert.equal(doneReminder.completed, true, "one-off reminder completes after firing");
 });
 
-// ---------- Alarm mode: rings until dismissed or window closes ----------
-test("alarm-mode reminders ring at tick 0 and stay ringing until window close/ack", async () => {
+// ---------- Alarm mode: rings until dismissed ----------
+test("alarm-mode reminders ring repeatedly and only stop on ack", async () => {
   const alarm = await Reminder.create({
     userId: await userAId(),
     title: "Wake up now",
@@ -365,8 +365,8 @@ test("alarm-mode reminders ring at tick 0 and stay ringing until window close/ac
   const sweep = await scanDueNotifications();
   assert.equal(sweep.reminders >= 1, true, "sweep should ring the alarm reminder");
 
-  const done = await Reminder.findById(alarm._id);
-  assert.equal(done.completed, false, "alarm must NOT complete while inside the 60s window");
+  const afterSweep = await Reminder.findById(alarm._id);
+  assert.equal(afterSweep.completed, false, "alarm must NOT auto-complete");
 
   const keys = await PushDelivery.find({
     source: "reminder",
@@ -379,6 +379,29 @@ test("alarm-mode reminders ring at tick 0 and stay ringing until window close/ac
     keys.some((k) => k.deliveryKey.startsWith("alarm:")),
     "alarm ticks claim the alarm- scoped key",
   );
+
+  // A later sweep (simulating 20s passing) must ring AGAIN — no time cap,
+  // a fresh tick key each 15s.
+  const sweep2 = await scanDueNotifications(new Date(Date.now() + 20_000));
+  assert.equal(sweep2.reminders >= 1, true, "alarm still rings on the next tick");
+  const keys2 = await PushDelivery.find({
+    source: "reminder",
+    referenceId: alarm._id,
+  })
+    .select("deliveryKey")
+    .lean();
+  assert.equal(keys2.length, 2, "a later tick rings again");
+  const afterSweep2 = await Reminder.findById(alarm._id);
+  assert.equal(afterSweep2.completed, false, "still ringing across ticks");
+
+  // Dismissal via the ack endpoint completes the reminder → stops ringing.
+  const { status } = await api("/api/notifications/push/ack-alarm", {
+    method: "POST",
+    body: { reminderId: String(alarm._id) },
+  });
+  assert.equal(status, 200, "ack endpoint accepts the dismiss");
+  const done = await Reminder.findById(alarm._id);
+  assert.equal(done.completed, true, "ack silences the alarm");
 });
 
 test("in-app list endpoint exposes the scheduler notification", async () => {

@@ -78,11 +78,11 @@ export const schedulerState = {
   lastError: null,
 };
 
-// Alarm burst: repeat the reminder push every ALARM_TICK_MS for ALARM_WINDOW_MS
-// (≈4 ticks / 1 minute) so it rings like an alarm until dismissed or timeout.
-const ALARM_WINDOW_MS = 60_000;
+// Alarm burst: repeat the reminder push every ALARM_TICK_MS so it rings like
+// an alarm UNTIL the user dismisses it (taps the notification or presses the
+// in-app Dismiss button → ack endpoint completes the reminder). No time cap —
+// the only safety stop is the stale-archive sweep (>12h overdue).
 const ALARM_TICK_MS = 15_000;
-const ALARM_TICKS = ALARM_WINDOW_MS / ALARM_TICK_MS; // 4
 
 let lastQuietLogAt = 0;
 
@@ -224,18 +224,10 @@ export async function scanDueNotifications(now = new Date()) {
   for (const r of dueReminders) {
     const scheduledTime = r.date;
 
-    // ----- Alarm mode: ring every ~15s for a minute until dismissed -----
+    // ----- Alarm mode: ring every ~15s until dismissed (ack), no time cap -----
     if (r.repeat === "none" && r.alarmMode !== false) {
       const elapsed = now.getTime() - scheduledTime.getTime();
-      if (elapsed >= ALARM_WINDOW_MS) {
-        // Ringing window passed without a dismissal → stop and complete.
-        await Reminder.updateOne({ _id: r._id }, { $set: { completed: true } });
-        continue;
-      }
-      const tick = Math.max(
-        0,
-        Math.min(ALARM_TICKS - 1, Math.floor(elapsed / ALARM_TICK_MS)),
-      );
+      const tick = Math.max(0, Math.floor(elapsed / ALARM_TICK_MS));
       const tickTime = new Date(scheduledTime.getTime() + tick * ALARM_TICK_MS);
       const settings = await notificationSettings(r.userId);
 
@@ -254,7 +246,7 @@ export async function scanDueNotifications(now = new Date()) {
         url: "/reminders",
         createInAppNotification: tick === 0 && settings.inApp,
         push: settings.push,
-        extra: { alarm: true, tick, alarmWindowMs: ALARM_WINDOW_MS },
+        extra: { alarm: true, tick },
       });
       res.deduped ? counts.deduped++ : (counts.notified += res.notified || 0);
       continue;

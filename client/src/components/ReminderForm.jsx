@@ -98,7 +98,7 @@ export default function ReminderForm({ open, onClose, onSuccess, reminder = null
           onChange={setRepeat}
         />
       </Field>
-      <Field label="Ring like an alarm" hint="Keeps buzzing every ~15s for 1 minute until you tap it or press Dismiss.">
+      <Field label="Ring like an alarm" hint="Dings every ~15s until you tap it or press Dismiss.">
         <Switch checked={alarmMode} onChange={setAlarmMode} />
       </Field>
       <Field label="Priority">

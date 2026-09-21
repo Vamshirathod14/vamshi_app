@@ -6,25 +6,35 @@ import { api } from "../api/client.js";
 const ALARM_EVENT = "vamshi-alarm";
 
 function startBeep() {
-  // A small synthesised siren (no audio file needed). Repeats until stopped.
+  // A loud, continuous synthesised siren (no audio file needed). Keeps
+  // wailing until stopped — Dismiss silences it (and acks the server).
   try {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     const ctx = new Ctx();
-    const beep = () => {
-      const t0 = ctx.currentTime;
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = "square";
-      osc.frequency.value = 880;
-      gain.gain.setValueAtTime(0.12, t0);
-      gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.5);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(t0);
-      osc.stop(t0 + 0.5);
+    const compressor = ctx.createDynamicsCompressor();
+    compressor.connect(ctx.destination);
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "square";
+    gain.gain.value = 0;
+    osc.connect(gain);
+    gain.connect(compressor);
+    osc.start();
+
+    let freq = 900;
+    let rising = true;
+    const step = () => {
+      freq = rising ? freq + 220 : freq - 220;
+      rising = !rising;
+      const t = ctx.currentTime;
+      osc.frequency.setValueAtTime(freq, t);
+      // Swell each half-second so it reads as a real alarm, not a ding.
+      gain.gain.cancelScheduledValues(t);
+      gain.gain.setValueAtTime(0.8, t);
+      gain.gain.exponentialRampToValueAtTime(0.25, t + 0.45);
     };
-    beep();
-    const interval = setInterval(beep, 900);
+    step();
+    const interval = setInterval(step, 450);
     return { ctx, interval };
   } catch {
     return null;
@@ -80,6 +90,16 @@ export default function AlarmSiren() {
       return;
     }
     if (!ringingRef.current) ringingRef.current = startBeep();
+    // If the phone/browser suspended audio while another tab was focused,
+    // unfurl it the moment the siren tab is visible again.
+    const onVisible = () => {
+      const ring = ringingRef.current;
+      if (ring && document.visibilityState === "visible") {
+        ring.ctx.resume().catch(() => {});
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, [active]);
 
   if (!active) return null;
