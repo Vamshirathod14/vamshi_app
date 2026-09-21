@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Eye, Pencil, Plus, Power, ShieldCheck, Trash2 } from "lucide-react";
+import { ChevronLeft, Pencil, Plus, Power, Send, ShieldCheck, Trash2 } from "lucide-react";
 import { api } from "../api/client.js";
 import { Button, Field, Sheet, Switch, Skeleton, Chip } from "../components/UI.jsx";
 import { formatDate, formatPaise, toDateInput } from "../utils/format.js";
 
 const TABS = [
   { id: "overview", label: "Overview" },
-  { id: "promo", label: "Promo codes" },
   { id: "festivals", label: "Festivals" },
+  { id: "messages", label: "Custom messages" },
+  { id: "reminders", label: "Reminders" },
 ];
+
+const statusVariant = (s) =>
+  s === "active" ? "green" : s === "expired" || s === "cancelled" ? "amber" : s === "pending" ? "amber" : "neutral";
 
 function TabBar({ active, onNavigate }) {
   return (
@@ -23,42 +27,13 @@ function TabBar({ active, onNavigate }) {
   );
 }
 
-const rup = (paise) => (paise == null ? "" : String(Math.round(paise) / 100));
-const toPaise = (value) => (value === "" || value == null ? null : Math.round(Number(value) * 100));
-
-const EMPTY_FORM = {
-  code: "",
-  description: "",
-  discountType: "percentage",
-  discountValue: "",
-  startDate: "",
-  expiryDate: "",
-  usageLimit: "",
-  perUserLimit: "1",
-  minimumAmount: "",
-  maximumDiscount: "",
-  appliesToPlan: "vamshi-premium",
-  isActive: true,
-};
-
-const statusVariant = (s) =>
-  s === "active" ? "green" : s === "expired" || s === "cancelled" ? "amber" : s === "pending" ? "amber" : "neutral";
-
-const promoStatus = (c) => {
-  if (c.archived) return { label: "Archived", variant: "neutral" };
-  if (!c.isActive) return { label: "Inactive", variant: "amber" };
-  return { label: "Active", variant: "green" };
-};
-
-const discountLabel = (c) =>
-  c.discountType === "percentage" ? `${c.discountValue}% off` : `${formatPaise(c.discountValue)} off`;
-
 export default function Admin() {
   const navigate = useNavigate();
   const [tab, setTab] = useState("overview");
 
-  if (tab === "promo") return <PromoCodes onNavigate={setTab} />;
   if (tab === "festivals") return <Festivals onNavigate={setTab} />;
+  if (tab === "messages") return <MessageBroadcast onNavigate={setTab} />;
+  if (tab === "reminders") return <UserReminders onNavigate={setTab} />;
   return <Overview navigate={navigate} onNavigate={setTab} />;
 }
 
@@ -124,10 +99,7 @@ function Overview({ navigate, onNavigate }) {
             ))}
           </div>
 
-          <div className="hstack" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-            <div className="group-label" style={{ marginTop: 0 }}>Revenue</div>
-            <button className="chip-link" onClick={() => onNavigate("promo")}>Manage promo codes →</button>
-          </div>
+          <div className="group-label" style={{ marginTop: 0 }}>Revenue</div>
           <div className="card admin-tile revenue-tile">
             <div className="stat-val">{formatPaise(stats.revenue)}</div>
             <div className="stat-lab">Total collected from paid subscriptions</div>
@@ -183,312 +155,6 @@ function Overview({ navigate, onNavigate }) {
           </div>
         </>
       )}
-    </div>
-  );
-}
-
-function PromoCodes({ onNavigate }) {
-  const [codes, setCodes] = useState(null);
-  const [error, setError] = useState("");
-  const [formOpen, setFormOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
-  const [usage, setUsage] = useState(null);
-  const [usageOpen, setUsageOpen] = useState(false);
-
-  async function load() {
-    const data = await api.get("/api/admin/promo-codes");
-    setCodes(data.promoCodes);
-  }
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      try {
-        const data = await api.get("/api/admin/promo-codes");
-        if (alive) setCodes(data.promoCodes);
-      } catch (err) {
-        if (alive) setError(err.message || "Could not load promo codes.");
-      }
-    })();
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  function openCreate() {
-    setEditing(null);
-    setForm(EMPTY_FORM);
-    setFormOpen(true);
-  }
-
-  function openEdit(c) {
-    setEditing(c);
-    setForm({
-      code: c.code,
-      description: c.description || "",
-      discountType: c.discountType,
-      discountValue: String(c.discountValue),
-      startDate: c.startDate ? toDateInput(c.startDate) : "",
-      expiryDate: c.expiryDate ? toDateInput(c.expiryDate) : "",
-      usageLimit: c.usageLimit == null ? "" : String(c.usageLimit),
-      perUserLimit: String(c.perUserLimit ?? 1),
-      minimumAmount: rup(c.minimumAmount),
-      maximumDiscount: rup(c.maximumDiscount),
-      appliesToPlan: c.appliesToPlan,
-      isActive: c.isActive,
-    });
-    setFormOpen(true);
-  }
-
-  async function saveForm() {
-    const body = {
-      code: form.code.trim(),
-      description: form.description.trim(),
-      discountType: form.discountType,
-      discountValue: Number(form.discountValue),
-      startDate: form.startDate ? new Date(form.startDate).toISOString() : null,
-      expiryDate: form.expiryDate ? new Date(form.expiryDate).toISOString() : null,
-      usageLimit: form.usageLimit === "" ? null : Number(form.usageLimit),
-      perUserLimit: Number(form.perUserLimit || 1),
-      minimumAmount: toPaise(form.minimumAmount),
-      maximumDiscount: toPaise(form.maximumDiscount),
-      appliesToPlan: form.appliesToPlan.trim() || "vamshi-premium",
-      isActive: form.isActive,
-    };
-    setSaving(true);
-    try {
-      if (editing) {
-        await api.patch(`/api/admin/promo-codes/${editing.id}`, body);
-      } else {
-        await api.post("/api/admin/promo-codes", body);
-      }
-      setFormOpen(false);
-      setSaving(false);
-      await load();
-    } catch (err) {
-      setSaving(false);
-      window.alert(err.message || "Could not save the promo code.");
-    }
-  }
-
-  async function toggleActive(c) {
-    try {
-      await api.patch(`/api/admin/promo-codes/${c.id}`, { isActive: !c.isActive });
-      await load();
-    } catch (err) {
-      window.alert(err.message || "Could not update the promo code.");
-    }
-  }
-
-  async function archive(c) {
-    if (!window.confirm(`Archive ${c.code}? It can no longer be redeemed.`)) return;
-    try {
-      await api.del(`/api/admin/promo-codes/${c.id}`);
-      await load();
-    } catch (err) {
-      window.alert(err.message || "Could not archive the promo code.");
-    }
-  }
-
-  async function openUsage(c) {
-    setUsage(null);
-    setUsageOpen(true);
-    try {
-      const data = await api.get(`/api/admin/promo-codes/${c.id}/usage`);
-      setUsage(data);
-    } catch (err) {
-      window.alert(err.message || "Could not load usage.");
-      setUsageOpen(false);
-    }
-  }
-
-  return (
-    <div className="page">
-      <div className="screen-head">
-        <button className="back" onClick={() => onNavigate("overview")}>
-          <ChevronLeft size={18} /> Admin
-        </button>
-        <h1 className="screen-title">Promo codes</h1>
-      </div>
-
-      <TabBar active="promo" onNavigate={onNavigate} />
-
-      <div className="hstack" style={{ justifyContent: "space-between", margin: "16px 0 12px" }}>
-        <Button variant="btn-outline btn-sm" onClick={openCreate} icon={<Plus size={15} />}>
-          New promo code
-        </Button>
-      </div>
-
-      {error ? (
-        <div className="empty" style={{ padding: "24px 16px" }}>
-          <div className="empty-icon">🔒</div>
-          <h3>Not allowed</h3>
-          <p>{error}</p>
-        </div>
-      ) : !codes ? (
-        <Skeleton lines={5} />
-      ) : codes.length === 0 ? (
-        <div className="empty" style={{ padding: "24px 16px" }}>
-          <div className="empty-icon">🏷️</div>
-          <h3>No promo codes yet</h3>
-          <p>Create your first code to offer discounts on new subscriptions.</p>
-        </div>
-      ) : (
-        <div className="list-card" style={{ padding: "4px 16px" }}>
-          {codes.map((c) => {
-            const status = promoStatus(c);
-            return (
-              <div key={c.id} className="set-row" style={{ alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="hstack" style={{ gap: 8 }}>
-                    <span style={{ fontWeight: 700 }}>{c.code}</span>
-                    <Chip variant={status.variant}>{status.label}</Chip>
-                  </div>
-                  <div className="small muted" style={{ marginTop: 2 }}>
-                    {discountLabel(c)}
-                    {c.description ? ` · ${c.description}` : ""}
-                    {c.expiryDate ? ` · ends ${formatDate(c.expiryDate)}` : ""}
-                    {c.usageLimit != null ? ` · ${c.usedCount}/${c.usageLimit} used` : ` · ${c.usedCount} used`}
-                  </div>
-                </div>
-                <div className="hstack" style={{ gap: 6 }}>
-                  {c.usedCount > 0 && (
-                    <button className="icon-btn" title="View usage" onClick={() => openUsage(c)}>
-                      <Eye size={15} />
-                    </button>
-                  )}
-                  <button className="icon-btn" title="Edit" onClick={() => openEdit(c)}>
-                    <Pencil size={15} />
-                  </button>
-                  <button className="icon-btn" title={c.isActive ? "Deactivate" : "Activate"} onClick={() => toggleActive(c)}>
-                    <Power size={15} />
-                  </button>
-                  <button className="icon-btn" title="Archive" style={{ color: "var(--red)" }} onClick={() => archive(c)}>
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="hstack" style={{ gap: 8, marginTop: 16, justifyContent: "center", color: "var(--fg-secondary)" }}>
-        <ShieldCheck size={15} /> Server-protected · admins only
-      </div>
-
-      <Sheet open={formOpen} onClose={() => setFormOpen(false)} title={editing ? `Edit ${editing.code}` : "New promo code"}>
-        <Field label="Code">
-          <input
-            className="input"
-            value={form.code}
-            onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
-            placeholder="e.g. WELCOME20"
-            maxLength={40}
-          />
-        </Field>
-        <Field label="Description">
-          <input
-            className="input"
-            value={form.description}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            placeholder="Optional — shown to customers"
-          />
-        </Field>
-        <Field label="Discount type">
-          <select
-            className="input"
-            value={form.discountType}
-            onChange={(e) => setForm({ ...form, discountType: e.target.value })}
-          >
-            <option value="percentage">Percentage</option>
-            <option value="fixed">Fixed amount</option>
-          </select>
-        </Field>
-        <Field
-          label={form.discountType === "percentage" ? "Discount value (%)" : "Discount value (₹)"}
-          hint={form.discountType === "percentage" ? "Between 1 and 100." : "Fixed amount off the payable amount."}
-        >
-          <input
-            className="input"
-            type="number"
-            min="0"
-            step={form.discountType === "percentage" ? "1" : "0.01"}
-            value={form.discountValue}
-            onChange={(e) => setForm({ ...form, discountValue: e.target.value })}
-          />
-        </Field>
-        <div className="hstack" style={{ gap: 12 }}>
-          <Field label="Starts">
-            <input className="input" type="date" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} />
-          </Field>
-          <Field label="Expires">
-            <input className="input" type="date" value={form.expiryDate} onChange={(e) => setForm({ ...form, expiryDate: e.target.value })} />
-          </Field>
-        </div>
-        <div className="hstack" style={{ gap: 12 }}>
-          <Field label="Usage limit" hint="Empty = unlimited">
-            <input className="input" type="number" min="1" value={form.usageLimit} onChange={(e) => setForm({ ...form, usageLimit: e.target.value })} />
-          </Field>
-          <Field label="Per-user limit">
-            <input className="input" type="number" min="1" value={form.perUserLimit} onChange={(e) => setForm({ ...form, perUserLimit: e.target.value })} />
-          </Field>
-        </div>
-        <div className="hstack" style={{ gap: 12 }}>
-          <Field label="Min amount (₹)">
-            <input className="input" type="number" min="0" step="0.01" value={form.minimumAmount} onChange={(e) => setForm({ ...form, minimumAmount: e.target.value })} placeholder="Any" />
-          </Field>
-          <Field label="Max discount (₹)">
-            <input className="input" type="number" min="0" step="0.01" value={form.maximumDiscount} onChange={(e) => setForm({ ...form, maximumDiscount: e.target.value })} placeholder="Uncapped" />
-          </Field>
-        </div>
-        <Field label="Applies to plan" hint='"*" = any plan'>
-          <input className="input" value={form.appliesToPlan} onChange={(e) => setForm({ ...form, appliesToPlan: e.target.value })} />
-        </Field>
-        <Field label="Active">
-          <Switch checked={form.isActive} onChange={(v) => setForm({ ...form, isActive: v })} />
-        </Field>
-        <div className="modal-actions">
-          <Button variant="btn-outline" onClick={() => setFormOpen(false)}>Cancel</Button>
-          <Button variant="btn-primary" onClick={saveForm} loading={saving}>
-            {editing ? "Save changes" : "Create code"}
-          </Button>
-        </div>
-      </Sheet>
-
-      <Sheet open={usageOpen} onClose={() => setUsageOpen(false)} title={usage ? `Usage — ${usage.promo.code}` : "Usage"}>
-        {!usage ? (
-          <Skeleton lines={4} />
-        ) : (
-          <>
-            <div className="hstack" style={{ gap: 10, marginBottom: 12, flexWrap: "wrap" }}>
-              <div className="use-stat"><b>{usage.totals.redemptions}</b><span>redemptions</span></div>
-              <div className="use-stat"><b>{formatPaise(usage.totals.discount)}</b><span>total discount given</span></div>
-              <div className="use-stat"><b>{formatPaise(usage.totals.revenue)}</b><span>revenue from this code</span></div>
-            </div>
-            {usage.usage.length === 0 ? (
-              <div className="empty" style={{ padding: "16px" }}>
-                <h3>No redemptions yet</h3>
-              </div>
-            ) : (
-              <div className="list-card" style={{ padding: "4px 16px" }}>
-                {usage.usage.map((u) => (
-                  <div key={u.id} className="set-row">
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div>{u.user ? u.user.name : "Deleted user"}</div>
-                      <div className="small muted">{u.user ? u.user.email : ""} · {formatDate(u.usedAt)}</div>
-                    </div>
-                    <div className="small muted" style={{ marginRight: 8 }}>−{formatPaise(u.discountAmount)}</div>
-                    <div className="small" style={{ fontWeight: 600 }}>{formatPaise(u.finalAmount)}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-      </Sheet>
     </div>
   );
 }
@@ -591,8 +257,7 @@ function Festivals({ onNavigate }) {
 
       <p className="small muted" style={{ margin: "12px 0" }}>
         Each day here is broadcast to every user with notifications on, at 9:00
-        AM IST on that date. Deactivate any you don't want sent. Delete what you
-        never want again.
+        AM IST on that date. Deactivate any you don't want sent.
       </p>
 
       <div className="hstack" style={{ justifyContent: "space-between", margin: "12px 0" }}>
@@ -621,7 +286,7 @@ function Festivals({ onNavigate }) {
             <div key={f._id} className="set-row" style={{ alignItems: "center", gap: 10, flexWrap: "wrap" }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="hstack" style={{ gap: 8, flexWrap: "wrap" }}>
-                  <ChatChip date={f.date} active={f.active !== false} />
+                  <Chip variant={f.active !== false ? "green" : "neutral"}>{f.date}</Chip>
                   <span style={{ fontWeight: 700 }}>{f.title}</span>
                 </div>
                 <div className="small muted" style={{ marginTop: 2 }}>{f.body}</div>
@@ -683,17 +348,232 @@ function Festivals({ onNavigate }) {
   );
 }
 
-function ChatChip({ date, active }) {
+function MessageBroadcast({ onNavigate }) {
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [sending, setSending] = useState(false);
+
+  async function send() {
+    if (!title.trim() || !body.trim()) {
+      window.alert("Give the message a title and some content.");
+      return;
+    }
+    if (!window.confirm(`Send "${title.trim()}" to EVERY user right now?`)) return;
+    setSending(true);
+    try {
+      const res = await api.post("/api/admin/broadcast", { title: title.trim(), body: body.trim() });
+      setSending(false);
+      window.alert(`Sent to ${res.recipients} user(s) — ${res.notified} device push(es).`);
+      setTitle("");
+      setBody("");
+    } catch (err) {
+      setSending(false);
+      window.alert(err.message || "Could not send the message.");
+    }
+  }
+
   return (
-    <span
-      className="chip"
-      style={{
-        whiteSpace: "nowrap",
-        background: active ? "rgba(16,185,129,.12)" : "rgba(100,116,139,.12)",
-        color: active ? "var(--green)" : "var(--fg-secondary)",
-      }}
-    >
-      {date}
-    </span>
+    <div className="page">
+      <div className="screen-head">
+        <button className="back" onClick={() => onNavigate("overview")}>
+          <ChevronLeft size={18} /> Admin
+        </button>
+        <h1 className="screen-title">Custom messages</h1>
+      </div>
+
+      <TabBar active="messages" onNavigate={onNavigate} />
+
+      <p className="small muted" style={{ margin: "12px 0" }}>
+        Write a message and hit send — it goes out immediately to every user
+        with notifications on. Use for announcements, offers or updates.
+      </p>
+
+      <div className="list-card" style={{ padding: 16 }}>
+        <Field label="Title">
+          <input
+            className="input"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g. New feature live! 🚀"
+            maxLength={120}
+          />
+        </Field>
+        <Field label="Message">
+          <textarea
+            className="input"
+            rows={4}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="e.g. Budget tracking just got smarter — check the new monthly summary in your app."
+            maxLength={500}
+          />
+        </Field>
+      </div>
+
+      {(title.trim() || body.trim()) && (
+        <>
+          <div className="group-label" style={{ marginTop: 16 }}>Preview — how it will look</div>
+          <div className="list-card" style={{ padding: 16, border: "1px solid var(--accent)" }}>
+            <div style={{ fontWeight: 700 }}>{title.trim() || "Your title"}</div>
+            <div className="small muted" style={{ marginTop: 4 }}>{body.trim() || "Your message…"}</div>
+          </div>
+        </>
+      )}
+
+      <Button
+        className="btn-block"
+        variant="btn-primary"
+        style={{ marginTop: 16 }}
+        onClick={send}
+        loading={sending}
+        icon={<Send size={15} />}
+      >
+        Send to all users
+      </Button>
+
+      <div className="hstack" style={{ gap: 8, marginTop: 16, justifyContent: "center", color: "var(--fg-secondary)" }}>
+        <ShieldCheck size={15} /> Server-protected · admins only
+      </div>
+    </div>
+  );
+}
+
+function UserReminders({ onNavigate }) {
+  const [users, setUsers] = useState(null);
+  const [error, setError] = useState("");
+  const [selected, setSelected] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const data = await api.get("/api/admin/users");
+        const sorted = [...data.users].sort(
+          (a, b) => new Date(a.updatedAt) - new Date(b.updatedAt),
+        );
+        if (alive) setUsers(sorted);
+      } catch (err) {
+        if (alive) setError(err.message || "Could not load users.");
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  function openUser(u) {
+    setSelected(u);
+    setTitle(`Hey ${(u.name || "there").split(" ")[0]}, we miss you!`);
+    setBody("It's been a while since your last visit — your spending overview is waiting whenever you're ready.");
+    setOpen(true);
+  }
+
+  async function send() {
+    if (!title.trim() || !body.trim()) {
+      window.alert("Give the reminder a title and some content.");
+      return;
+    }
+    if (!window.confirm(`Send this to ${selected.name} right now?`)) return;
+    setSending(true);
+    try {
+      const res = await api.post("/api/admin/broadcast/user", {
+        userId: selected._id,
+        title: title.trim(),
+        body: body.trim(),
+      });
+      setSending(false);
+      setOpen(false);
+      window.alert(`Reminder sent to ${selected.name}${res.notified > 0 ? ` — ${res.notified} device push(es)` : " — device not reachable right now"}.`);
+    } catch (err) {
+      setSending(false);
+      window.alert(err.message || "Could not send the reminder.");
+    }
+  }
+
+  return (
+    <div className="page">
+      <div className="screen-head">
+        <button className="back" onClick={() => onNavigate("overview")}>
+          <ChevronLeft size={18} /> Admin
+        </button>
+        <h1 className="screen-title">Reminders</h1>
+      </div>
+
+      <TabBar active="reminders" onNavigate={onNavigate} />
+
+      <p className="small muted" style={{ margin: "12px 0" }}>
+        Tap a user (least active first) to send them a personal nudge — goes
+        straight to their phone with a single click.
+      </p>
+
+      {error ? (
+        <div className="empty" style={{ padding: "24px 16px" }}>
+          <div className="empty-icon">🔒</div>
+          <h3>Not allowed</h3>
+          <p>{error}</p>
+        </div>
+      ) : !users ? (
+        <Skeleton lines={6} />
+      ) : users.length === 0 ? (
+        <div className="empty" style={{ padding: "24px 16px" }}>
+          <div className="empty-icon">👤</div>
+          <h3>No users yet</h3>
+        </div>
+      ) : (
+        <div className="list-card" style={{ padding: "4px 16px" }}>
+          {users.map((u) => (
+            <div
+              key={u._id}
+              className="set-row"
+              style={{ alignItems: "center", gap: 10, cursor: "pointer" }}
+              onClick={() => openUser(u)}
+            >
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="hstack" style={{ gap: 8 }}>
+                  <span style={{ fontWeight: 600 }}>{u.name || "—"}</span>
+                  {u.role === "admin" && <Chip variant="accent">Admin</Chip>}
+                </div>
+                <div className="small muted">{u.email}</div>
+                <div className="small muted" style={{ marginTop: 2 }}>Last active {formatDate(u.updatedAt)}</div>
+              </div>
+              <Chip variant={statusVariant(u.subscriptionStatus)}>{u.subscriptionStatus}</Chip>
+              <button className="icon-btn" title="Send reminder">
+                <Send size={15} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="hstack" style={{ gap: 8, marginTop: 16, justifyContent: "center", color: "var(--fg-secondary)" }}>
+        <ShieldCheck size={15} /> Server-protected · admins only
+      </div>
+
+      <Sheet open={open} onClose={() => setOpen(false)} title={`Reminder — ${selected ? selected.name : ""}`}>
+        <Field label="Title">
+          <input className="input" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} />
+        </Field>
+        <Field label="Message">
+          <textarea
+            className="input"
+            rows={4}
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="A short personal note for this user."
+            maxLength={500}
+          />
+        </Field>
+        <div className="modal-actions">
+          <Button variant="btn-outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="btn-primary" onClick={send} loading={sending} icon={<Send size={15} />}>
+            Send reminder
+          </Button>
+        </div>
+      </Sheet>
+    </div>
   );
 }

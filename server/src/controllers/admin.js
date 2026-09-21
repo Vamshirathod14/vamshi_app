@@ -206,3 +206,85 @@ export const promoUsage = asyncHandler(async (req, res) => {
     totals,
   });
 });
+
+// ---------------- Manual messaging ----------------
+
+const manualMessageSchema = z.object({
+  title: z.string().min(1).max(120),
+  body: z.string().min(1).max(500),
+});
+
+const manualUserMessageSchema = manualMessageSchema.extend({
+  userId: z.string().regex(/^[a-f\d]{24}$/i),
+});
+
+/** Every user (name, email, subscription, last activity) for the Reminders tab. */
+export const listUsers = asyncHandler(async (_req, res) => {
+  const users = await User.find()
+    .sort({ updatedAt: -1 })
+    .select(
+      "name email role subscriptionStatus notificationsEnabled createdAt updatedAt",
+    )
+    .lean();
+  return res.json({ users });
+});
+
+/**
+ * One-off, admin-clicked broadcast to every user with notifications enabled.
+ * Each click is a fresh manual event (a unique delivery key), so clicking
+ * always re-sends — unlike the once-a-day scheduled broadcasts.
+ */
+export const broadcastMessage = asyncHandler(async (req, res) => {
+  const { title, body } = manualMessageSchema.parse(req.body);
+  const users = await User.find({ notificationsEnabled: { $ne: false } })
+    .select("_id")
+    .lean();
+  const { deliverScheduledNotification } = await import(
+    "../services/notifications.js"
+  );
+  const refId = String(Date.now());
+  let notified = 0;
+  for (const { _id } of users) {
+    const result = await deliverScheduledNotification({
+      userId: _id,
+      source: "system",
+      deliveryKey: `manual:${String(_id)}:broadcast:${refId}`,
+      scheduledTime: new Date(),
+      title,
+      body,
+      url: "/",
+      createInAppNotification: true,
+      push: true,
+    });
+    notified += result.notified || 0;
+  }
+  console.info(
+    `[push] admin broadcast "${title}" → ${users.length} user(s), ${notified} device(s)`,
+  );
+  return res.json({ recipients: users.length, notified });
+});
+
+/** One targeted message to a single user — the "nudge" from the Reminders tab. */
+export const broadcastToUser = asyncHandler(async (req, res) => {
+  const { userId, title, body } = manualUserMessageSchema.parse(req.body);
+  const user = await User.findOne({ _id: userId }).select("email").lean();
+  if (!user) throw new ApiError(404, "User not found.");
+  const { deliverScheduledNotification } = await import(
+    "../services/notifications.js"
+  );
+  const result = await deliverScheduledNotification({
+    userId,
+    source: "system",
+    deliveryKey: `manual:${userId}:msg:${Date.now()}`,
+    scheduledTime: new Date(),
+    title,
+    body,
+    url: "/",
+    createInAppNotification: true,
+    push: true,
+  });
+  console.info(
+    `[push] admin message to ${user.email}: "${title}" → ${result.notified} device(s)`,
+  );
+  return res.json({ user: user.email, notified: result.notified });
+});

@@ -1,11 +1,9 @@
 import { Router } from "express";
 import {
   stats,
-  listPromoCodes,
-  createPromoCode,
-  updatePromoCode,
-  removePromoCode,
-  promoUsage,
+  listUsers,
+  broadcastMessage,
+  broadcastToUser,
 } from "../controllers/admin.js";
 import {
   listFestivals,
@@ -19,14 +17,12 @@ import { requireAdmin } from "../middleware/subscription.js";
 const router = Router();
 router.use(protect, requireAdmin);
 router.get("/stats", stats);
+router.get("/users", listUsers);
+router.post("/broadcast", broadcastMessage);
+router.post("/broadcast/user", broadcastToUser);
 router.get("/festivals", listFestivals);
 router.post("/festivals", createFestival);
 router.patch("/festivals/:id", updateFestival);
 router.delete("/festivals/:id", removeFestival);
-router.get("/promo-codes", listPromoCodes);
-router.post("/promo-codes", createPromoCode);
-router.patch("/promo-codes/:id", updatePromoCode);
-router.delete("/promo-codes/:id", removePromoCode);
-router.get("/promo-codes/:id/usage", promoUsage);
 
 export default router;
