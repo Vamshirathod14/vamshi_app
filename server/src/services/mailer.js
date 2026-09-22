@@ -3,6 +3,14 @@ import { env } from "../config/env.js";
 
 const smtpConfigured = Boolean(env.smtpHost && env.smtpUser && env.smtpPass);
 
+if (smtpConfigured) {
+  console.info(
+    `[mail] SMTP ready: ${env.smtpUser}@${env.smtpHost}:${env.smtpPort} from=${env.mailFrom || env.smtpUser}`,
+  );
+} else {
+  console.info("[mail] SMTP not configured — password reset links will be logged to the console.");
+}
+
 function transport() {
   if (!smtpConfigured) return null;
   return nodemailer.createTransport({
