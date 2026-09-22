@@ -77,6 +77,16 @@ export const env = {
     .filter(Boolean),
   maxReceiptSizeMb: num(process.env.MAX_RECEIPT_SIZE_MB, 5),
 
+  // Email (SMTP) for password resets. Leave unset and reset links are just
+  // logged to the server console (handy for dev). Use any provider — Gmail
+  // app password, Zoho, AWS SES SMTP, etc.
+  smtpHost: process.env.SMTP_HOST || "",
+  smtpPort: num(process.env.SMTP_PORT, 587),
+  smtpSecure: process.env.SMTP_SECURE === "true",
+  smtpUser: process.env.SMTP_USER || "",
+  smtpPass: process.env.SMTP_PASS || "",
+  mailFrom: process.env.MAIL_FROM || "",
+
   // Web Push (VAPID). Public key is safe to send to browsers; the private key
   // must NEVER leave the server. Configure locally with:
   //   npx web-push generate-vapid-keys

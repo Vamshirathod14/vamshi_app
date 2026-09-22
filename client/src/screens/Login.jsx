@@ -60,6 +60,11 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </Field>
+          <div style={{ textAlign: "right", marginBottom: 8 }}>
+            <Link to="/forgot-password" className="small muted">
+              Forgot password?
+            </Link>
+          </div>
           <Button className="btn-block" type="submit" loading={loading} variant="btn-primary">
             Sign In
           </Button>

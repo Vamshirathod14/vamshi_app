@@ -7,6 +7,8 @@ import AlarmSiren from "./components/AlarmSiren.jsx";
 
 const Login = lazy(() => import("./screens/Login.jsx"));
 const Register = lazy(() => import("./screens/Register.jsx"));
+const ForgotPassword = lazy(() => import("./screens/ForgotPassword.jsx"));
+const ResetPassword = lazy(() => import("./screens/ResetPassword.jsx"));
 const OnboardingPage = lazy(() => import("./screens/OnboardingPage.jsx"));
 const Terms = lazy(() => import("./screens/Terms.jsx"));
 const PrivacyPolicy = lazy(() =>
@@ -82,6 +84,8 @@ function Router() {
             <Route path="/" element={<OnboardingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+<Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 <Route path="/terms" element={<Terms />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="*" element={<Navigate to="/login" replace />} />

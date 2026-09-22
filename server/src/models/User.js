@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema(
       maxlength: 160,
     },
     passwordHash: { type: String, required: true },
+    // Password reset: only a SHA-256 hash of the token is stored (never the
+    // token itself), with a 30-minute expiry.
+    passwordResetTokenHash: { type: String, default: null },
+    passwordResetExpires: { type: Date, default: null },
     avatar: { type: String, default: null },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     currency: { type: String, default: "INR" },

@@ -1,14 +1,15 @@
 import { z } from "zod";
+import { createHash, randomBytes } from "node:crypto";
 import { User } from "../models/User.js";
 import { SessionToken } from "../models/Token.js";
-import
-{
+import {
   issueAccessToken,
   issueRefreshToken,
   rotateRefresh,
   clearAuthCookies,
   revokeUserSessions,
 } from "../services/token.js";
+import { sendPasswordResetEmail } from "../services/mailer.js";
 import { ApiError, asyncHandler } from "../middleware/handle.js";
 import { ensureUserDefaults } from "../config/seed.js";
 import { env } from "../config/env.js";
@@ -103,4 +104,72 @@ export const changePassword = asyncHandler(async (req, res) => {
   await req.user.setPassword(newPassword);
   await req.user.save();
   return res.json({ message: "Password updated." });
+});
+
+// ================= Password reset (forgot password) =================
+
+const PASSWORD_RESET_TTL_MS = 30 * 60 * 1000;
+const hashResetToken = (token) =>
+  createHash("sha256").update(token).digest("hex");
+
+const forgotSchema = z.object({ email: z.string().email() });
+const resetPasswordSchema = z.object({
+  token: z.string().min(20).max(256),
+  newPassword: z.string().min(6).max(128),
+});
+
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = forgotSchema.parse(req.body);
+  const user = await User.findOne({ email: email.toLowerCase() });
+
+  if (user) {
+    // Store only a hash of the token so a database leak can't be used to
+    // reset accounts. The raw token is sent to the user's inbox, never saved.
+    const token = randomBytes(32).toString("hex");
+    user.passwordResetTokenHash = hashResetToken(token);
+    user.passwordResetExpires = new Date(Date.now() + PASSWORD_RESET_TTL_MS);
+    await user.save();
+
+    const resetUrl = `${env.clientOrigin}/reset-password?token=${token}`;
+    // Fire-and-forget: failures are logged but the response stays generic so
+    // attackers can't probe which emails have accounts.
+    sendPasswordResetEmail({
+      email: user.email,
+      name: user.name,
+      resetUrl,
+    }).catch((err) =>
+      console.error(`[mail] reset email failed for ${user.email}: ${err.message}`),
+    );
+  }
+
+  return res.json({
+    message:
+      "If an account exists for that email, a password reset link is on its way.",
+  });
+});
+
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token, newPassword } = resetPasswordSchema.parse(req.body);
+  const user = await User.findOne({
+    passwordResetTokenHash: hashResetToken(token),
+    passwordResetExpires: { $gt: new Date() },
+  });
+  if (!user) {
+    throw new ApiError(
+      400,
+      "This reset link is invalid or has expired. Please request a new one.",
+    );
+  }
+
+  await user.setPassword(newPassword);
+  user.passwordResetTokenHash = null;
+  user.passwordResetExpires = null;
+  await user.save();
+
+  // Reset the password, drop every session (incl. stolen ones), and clear
+  // refresh cookies so the old login is fully dead.
+  await revokeUserSessions(user._id);
+  clearAuthCookies(res);
+
+  return res.json({ message: "Password updated. You can now sign in." });
 });
