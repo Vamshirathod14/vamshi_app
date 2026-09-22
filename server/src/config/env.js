@@ -85,7 +85,7 @@ export const env = {
   smtpSecure: process.env.SMTP_SECURE === "true",
   smtpUser: process.env.SMTP_USER || "",
   smtpPass: process.env.SMTP_PASS || "",
-  mailFrom: process.env.MAIL_FROM || "",
+  mailFrom: (process.env.MAIL_FROM || "").replace(/^["']|["']$/g, ""),
 
   // Web Push (VAPID). Public key is safe to send to browsers; the private key
   // must NEVER leave the server. Configure locally with:
