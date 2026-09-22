@@ -51,8 +51,8 @@ export const env = {
   mongoUri: withDefaultDatabase(process.env.MONGODB_URI, defaultDatabase),
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET,
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET,
-  jwtAccessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "15m",
-  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "30d",
+  jwtAccessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || "30m",
+  jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "365d",
   // Secure defaults to true in production (HTTPS) but can be forced off with COOKIE_SECURE=false (e.g. local HTTPS-less runs).
   cookieSecure:
     process.env.COOKIE_SECURE === "true" ||
