@@ -154,7 +154,7 @@ export const pushTest = asyncHandler(async (req, res) => {
   }
   const result = await pushToDevice(req.user._id, {
     type: "test",
-    title: "Vamshi Notifications",
+    title: "Liv Notifications",
     body: "Push notifications are working correctly.",
     url: "/",
   });

@@ -9,7 +9,7 @@ const SECTIONS = [
   },
   {
     h: "2. Your data in the app",
-    p: "The information you enter in Vamshi is stored securely on your private account and used only to run the app for you — displaying your totals, generating your reports and syncing across your own devices. We never track, sell, share or advertise based on your finances.",
+    p: "The information you enter in Liv is stored securely on your private account and used only to run the app for you — displaying your totals, generating your reports and syncing across your own devices. We never track, sell, share or advertise based on your finances.",
   },
   {
     h: "3. Advertising & cookies",
@@ -37,7 +37,7 @@ const SECTIONS = [
   },
   {
     h: "9. Children's privacy",
-    p: "Vamshi is not intended for children under 13, and we do not knowingly collect their data.",
+    p: "Liv is not intended for children under 13, and we do not knowingly collect their data.",
   },
   {
     h: "10. Changes to this policy",
@@ -45,7 +45,7 @@ const SECTIONS = [
   },
   {
     h: "11. Contact",
-    p: "Questions about this policy? Write to us at support@vamshi.app.",
+    p: "Questions about this policy? Write to us at support@liv.app.",
   },
 ];
 
@@ -57,7 +57,7 @@ export default function PrivacyPolicy() {
       <div className="auth-card terms-card">
         <div className="auth-logo">
           <div className="logo-mark">V</div>
-          <h1>Vamshi</h1>
+          <h1>Liv</h1>
         </div>
         <Link to={user ? "/" : "/login"} className="back">
           <ChevronLeft size={18} /> Back to {user ? "home" : "sign in"}

@@ -187,8 +187,8 @@ export default function Settings() {
             {!pushHook.supported
               ? "Push isn't supported in this browser. On iPhone, add the app to your Home Screen first."
               : pushHook.enabled
-                ? "You're receiving on this device — reminders arrive even when Vamshi is closed."
-                : "Device delivery is off for this browser. Turn it on below to get reminders when Vamshi is closed."}
+                ? "You're receiving on this device — reminders arrive even when Liv is closed."
+                : "Device delivery is off for this browser. Turn it on below to get reminders when Liv is closed."}
           </p>
           {pushHook.message && (
             <p className="small" style={{ margin: "8px 0 0", color: "var(--accent)" }}>{pushHook.message}</p>

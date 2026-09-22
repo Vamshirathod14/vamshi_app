@@ -19,7 +19,7 @@ async function start() {
 
   const app = createApp();
   app.listen(env.port, () => {
-    console.log(`[server] Vamshi API listening on :${env.port}`);
+    console.log(`[server] Liv API listening on :${env.port}`);
   });
 
   // recurring engine: generate due transactions every 5 minutes + on boot

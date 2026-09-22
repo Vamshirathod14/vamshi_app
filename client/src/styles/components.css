@@ -419,7 +419,7 @@
 .toast.success { background: var(--green); color: #fff; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(-12px); } }
 @keyframes fade-in { from { opacity: 0; } }
-@keyframes vamshi-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+@keyframes liv-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
 
 /* offline banner */
 .offline-bar {

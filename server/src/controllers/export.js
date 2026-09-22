@@ -115,7 +115,7 @@ export const exportCsv = asyncHandler(async (req, res) => {
   const fn = map[type] || map.transactions;
   const csv = await fn();
   res.setHeader("Content-Type", "text/csv; charset=utf-8");
-  res.setHeader("Content-Disposition", `attachment; filename="vamshi-${type}.csv"`);
+  res.setHeader("Content-Disposition", `attachment; filename="liv-${type}.csv"`);
   return res.send(csv);
 });
 
@@ -152,14 +152,14 @@ export const exportJson = asyncHandler(async (req, res) => {
   };
 
   res.setHeader("Content-Type", "application/json");
-  res.setHeader("Content-Disposition", 'attachment; filename="vamshi-backup.json"');
+  res.setHeader("Content-Disposition", 'attachment; filename="liv-backup.json"');
   return res.send(JSON.stringify(data, null, 2));
 });
 
 export const importJson = asyncHandler(async (req, res) => {
   const { data } = req.body;
   if (!data || typeof data !== "object" || data.app !== "vault") {
-    return res.status(400).json({ message: "That doesn't look like a Vamshi backup." });
+    return res.status(400).json({ message: "That doesn't look like a Liv backup." });
   }
   const userId = req.user._id;
 

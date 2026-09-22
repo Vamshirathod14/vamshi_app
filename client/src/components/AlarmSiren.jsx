@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "../api/client.js";
 
 // Coordinates alarms announced by the service worker straight into this tab.
-// The SW sends { type: "vamshi-alarm" } on every alarm-burst push it handles.
-const ALARM_EVENT = "vamshi-alarm";
+// The SW sends { type: "liv-alarm" } on every alarm-burst push it handles.
+const ALARM_EVENT = "liv-alarm";
 
 function startBeep() {
   // A loud, continuous synthesised siren (no audio file needed). Keeps
@@ -50,7 +50,7 @@ export default function AlarmSiren() {
       const data = event && event.data;
       if (!data || data.type !== ALARM_EVENT) return;
       setActive({
-        title: data.title || "Vamshi reminder",
+        title: data.title || "Liv reminder",
         body: data.body || "",
         referenceId: data.referenceId || null,
       });
@@ -121,7 +121,7 @@ export default function AlarmSiren() {
         textAlign: "center",
       }}
     >
-      <div style={{ fontSize: 56, animation: "vamshi-pulse 1s infinite" }}>⏰</div>
+      <div style={{ fontSize: 56, animation: "liv-pulse 1s infinite" }}>⏰</div>
       <h1 style={{ fontSize: 28, margin: 0 }}>{active.title.replace(/⏰.*$/, "").trim()}</h1>
       {active.body && <p style={{ fontSize: 16, opacity: 0.95, maxWidth: 420, margin: 0 }}>{active.body}</p>}
       <p style={{ fontSize: 13, opacity: 0.75, margin: 0 }}>Ringing every ~15s until you press Dismiss.</p>

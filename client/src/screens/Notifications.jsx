@@ -109,7 +109,7 @@ export default function Notifications() {
           <div className="list-card" style={{ padding: 16, marginBottom: 14 }}>
             <div style={{ fontWeight: 600 }}>🔔 Enable device notifications</div>
             <p className="small muted" style={{ margin: "6px 0 12px" }}>
-              Get reminders and task alerts on this device even when Vamshi is closed.
+              Get reminders and task alerts on this device even when Liv is closed.
             </p>
             <button
               className="btn btn-primary btn-sm"

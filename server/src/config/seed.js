@@ -8,9 +8,9 @@ import { env } from "./env.js";
 // empty so the admin table stays the single source of truth afterwards.
 // Format: 2026-YYYY-MM-DD (IST). Edit freely from the admin panel.
 const FESTIVALS_2026 = [
-  { date: "2026-01-01", title: "Happy New Year! 🎉", body: "New year, new financial goals — log your first expense of 2026 with Vamshi." },
+  { date: "2026-01-01", title: "Happy New Year! 🎉", body: "New year, new financial goals — log your first expense of 2026 with Liv." },
   { date: "2026-01-15", title: "Happy Pongal / Sankranti! 🪁", body: "Season of new beginnings — track your festive spending and stay in control." },
-  { date: "2026-01-26", title: "Happy Republic Day! 🇮🇳", body: "Celebrate proudly and spend wisely. Log today's outings with Vamshi." },
+  { date: "2026-01-26", title: "Happy Republic Day! 🇮🇳", body: "Celebrate proudly and spend wisely. Log today's outings with Liv." },
   { date: "2026-02-14", title: "Happy Valentine's Day! 💝", body: "Love is sweet — and so is watching your budget. Record the day's treats." },
   { date: "2026-03-19", title: "Happy Ugadi! 🌸", body: "A new Telugu year begins — fresh budget, fresh blessings. Start logging today." },
   { date: "2026-03-21", title: "Happy Holi! 🎨", body: "A splash of colour and joy — don't let the festive fun blur your budget." },

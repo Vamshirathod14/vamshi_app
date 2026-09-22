@@ -40,7 +40,7 @@ export default function DataPage() {
         throw new Error(data.message || "Export failed.");
       }
       const blob = await res.blob();
-      downloadBlob(blob, `vamshi-${type}-${from || "all"}.csv`);
+      downloadBlob(blob, `liv-${type}-${from || "all"}.csv`);
       push("CSV downloaded.", "success");
     } catch (err) {
       push(err.message, "error");
@@ -54,7 +54,7 @@ export default function DataPage() {
     try {
       const res = await api.raw("/api/export/json");
       const blob = await res.blob();
-      downloadBlob(blob, `vamshi-backup-${new Date().toISOString().slice(0, 10)}.json`);
+      downloadBlob(blob, `liv-backup-${new Date().toISOString().slice(0, 10)}.json`);
       push("JSON backup downloaded.", "success");
     } catch (err) {
       push(err.message, "error");

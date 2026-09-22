@@ -53,7 +53,7 @@ export default function More() {
   const dataRows = [
     { to: "/data", icon: <Database size={17} />, color: "var(--violet)", title: "Data & Backup", sub: "Export CSV, JSON backup" },
     { to: "/account", icon: <UserRound size={17} />, color: "var(--accent)", title: "Account", sub: "Profile & password" },
-    { to: "/install", icon: <Download size={17} />, color: "var(--accent)", title: "Install app", sub: "Add Vamshi to your home screen" },
+    { to: "/install", icon: <Download size={17} />, color: "var(--accent)", title: "Install app", sub: "Add Liv to your home screen" },
     { to: "/settings", icon: <Settings size={17} />, color: "var(--fg-secondary)", title: "Settings", sub: "Preferences & security" },
     { to: "/terms", icon: <ScrollText size={17} />, color: "var(--fg-tertiary)", title: "Terms & Conditions", sub: "Terms of use & conditions" },
     { to: "/privacy-policy", icon: <Lock size={17} />, color: "var(--fg-tertiary)", title: "Privacy Policy", sub: "How we handle your data" },

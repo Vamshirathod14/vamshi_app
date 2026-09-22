@@ -1,4 +1,4 @@
-const CACHE = "vamshi-push-v1";
+const CACHE = "liv-push-v1";
 const SHELL = [
   "/",
   "/index.html",
@@ -58,7 +58,7 @@ self.addEventListener("fetch", (event) => {
           (await caches.match("/")) || (await caches.match("/index.html"));
         if (shell) return shell;
         return new Response(
-          "<!doctype html><html><head><meta charset='utf-8'><title>Vamshi</title></head><body style='font-family:system-ui;padding:2rem;text-align:center'><h2>You're offline</h2><p>Check your connection and try again.</p></body></html>",
+          "<!doctype html><html><head><meta charset='utf-8'><title>Liv</title></head><body style='font-family:system-ui;padding:2rem;text-align:center'><h2>You're offline</h2><p>Check your connection and try again.</p></body></html>",
           { headers: { "Content-Type": "text/html; charset=utf-8" } },
         );
       })(),
@@ -133,17 +133,17 @@ self.addEventListener("push", (event) => {
     data = {};
   }
   const type = String(data.type || "system");
-  const title = data.title || (type === "test" ? "Vamshi Notifications" : "Vamshi");
+  const title = data.title || (type === "test" ? "Liv Notifications" : "Liv");
   const alarm = data.alarm === true;
   // Alarm ticks share one tag so each repeat replaces the last — one bumping
   // notification that buzzes/sounds again rather than a pile of duplicates.
   const base = {
-    body: data.body || "You have a new update in Vamshi.",
+    body: data.body || "You have a new update in Liv.",
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
     tag: alarm
-      ? `vamshi-alarm-${data.referenceId || data.deliveryId}`
-      : data.tag || data.deliveryId || `vamshi-${type}`,
+      ? `liv-alarm-${data.referenceId || data.deliveryId}`
+      : data.tag || data.deliveryId || `liv-${type}`,
     renotify: true,
     ...(alarm ? { requireInteraction: true } : {}),
     data: {
@@ -189,7 +189,7 @@ self.addEventListener("push", (event) => {
       for (const c of clients) {
         try {
           c.postMessage({
-            type: alarm ? "vamshi-alarm" : "vamshi-push",
+            type: alarm ? "liv-alarm" : "liv-push",
             title,
             body: base.body,
             shown,

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { X, Download } from "lucide-react";
 import { useInstallPrompt } from "../hooks/useInstallPrompt.js";
 
-const KEY = "vamshi-install-banner-dismissed";
+const KEY = "liv-install-banner-dismissed";
 
 export default function InstallBanner() {
   const { deferredPrompt, promptInstall, standalone } = useInstallPrompt();
@@ -29,7 +29,7 @@ export default function InstallBanner() {
   return (
     <div className="install-banner">
       <span className="install-banner-text">
-        <b>Add Vamshi to your home screen</b> — it opens like a real app, full-screen & offline-ready.
+        <b>Add Liv to your home screen</b> — it opens like a real app, full-screen & offline-ready.
       </span>
       <button className="btn btn-primary" onClick={install}>
         <Download size={15} /> Install

@@ -26,7 +26,7 @@ export default function Install() {
           <div className="empty-icon">🎉</div>
           <h3>You're all set!</h3>
           <p className="small muted">
-            Vamshi is already running as an installed app on this device.
+            Liv is already running as an installed app on this device.
           </p>
         </div>
       </div>
@@ -47,15 +47,15 @@ export default function Install() {
           <div className="chip sm">
             <Smartphone size={16} />
           </div>
-          <div style={{ fontWeight: 650, fontSize: 15.5 }}>Vamshi works best from your home screen</div>
+          <div style={{ fontWeight: 650, fontSize: 15.5 }}>Liv works best from your home screen</div>
         </div>
         <p className="small muted" style={{ marginTop: 4 }}>
-          Install Vamshi like a real app — it opens full-screen, offline-ready and
+          Install Liv like a real app — it opens full-screen, offline-ready and
           works exactly like a native app. It's free.
         </p>
         {deferredPrompt ? (
           <Button className="btn-block" variant="btn-primary" style={{ marginTop: 12 }} onClick={promptInstall}>
-            <Download size={16} /> Install Vamshi
+            <Download size={16} /> Install Liv
           </Button>
         ) : (
           <div style={{ marginTop: 12 }}>
@@ -85,7 +85,7 @@ export default function Install() {
             <div className="step-num">3</div>
             <div className="step-body">
               <div className="step-title">Tap Add</div>
-              <div className="small muted">Confirm in the top-right. Vamshi's icon appears on your home screen.</div>
+              <div className="small muted">Confirm in the top-right. Liv's icon appears on your home screen.</div>
             </div>
           </div>
         </div>
@@ -136,21 +136,21 @@ export default function Install() {
             <div className="step-num">1</div>
             <div className="step-body">
               <div className="step-title">Open the website</div>
-              <div className="small muted">Visit Vamshi in Chrome or Edge on your computer.</div>
+              <div className="small muted">Visit Liv in Chrome or Edge on your computer.</div>
             </div>
           </div>
           <div className="step-card">
             <div className="step-num">2</div>
             <div className="step-body">
               <div className="step-title">Click the install icon</div>
-              <div className="small muted">The <MonitorDown size={13} style={{ verticalAlign: "-2px" }} /> install icon sits in the address bar — or ⋮ menu → <b>Install&nbsp;Vamshi</b>.</div>
+              <div className="small muted">The <MonitorDown size={13} style={{ verticalAlign: "-2px" }} /> install icon sits in the address bar — or ⋮ menu → <b>Install&nbsp;Liv</b>.</div>
             </div>
           </div>
           <div className="step-card">
             <div className="step-num">3</div>
             <div className="step-body">
               <div className="step-title">Click Install</div>
-              <div className="small muted">Confirm and Vamshi opens in its own app window, ready offline.</div>
+              <div className="small muted">Confirm and Liv opens in its own app window, ready offline.</div>
             </div>
           </div>
         </div>
@@ -158,7 +158,7 @@ export default function Install() {
       )}
 
       <p className="small muted" style={{ textAlign: "center", marginTop: 16 }}>
-        Stay logged in — your data lives securely on Vamshi.
+        Stay logged in — your data lives securely on Liv.
       </p>
     </div>
   );

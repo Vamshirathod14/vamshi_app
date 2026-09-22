@@ -87,14 +87,14 @@ export default function Account() {
         <div className="list-card" style={{ padding: "4px 16px" }}>
           <div className="set-row">
             <div style={{ flex: 1 }}>
-              <div>Vamshi — Free</div>
+              <div>Liv — Free</div>
               <div className="small muted">All features unlocked, no subscription.</div>
             </div>
             <Chip variant="green">Free</Chip>
           </div>
         </div>
         <Button className="btn-block" variant="btn-outline" onClick={() => navigate("/install")}>
-          <Download size={16} /> Install Vamshi on your phone
+          <Download size={16} /> Install Liv on your phone
         </Button>
 
         {/* Security */}

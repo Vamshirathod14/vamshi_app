@@ -4,8 +4,8 @@
 export const PLANS = {
   premium: {
     id: "vamshi-premium",
-    name: "Vamshi Premium",
-    tagline: "Everything in Vamshi, unlocked.",
+    name: "Liv Premium",
+    tagline: "Everything in Liv, unlocked.",
     price: 99,
     currency: "INR",
     amountPaise: 9900,

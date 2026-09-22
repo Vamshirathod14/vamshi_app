@@ -138,7 +138,7 @@ export default function Subscription() {
         key: res.keyId,
         amount: res.order.amountPaise,
         currency: res.order.currency,
-        name: "Vamshi",
+        name: "Liv",
         description: `${res.plan.name} · ${formatPaise(res.order.amountPaise)}/mo first payment`,
         order_id: res.order.id,
         prefill: { name: user.name, email: user.email },
@@ -150,7 +150,7 @@ export default function Subscription() {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
             });
-            push("Welcome to Vamshi Premium!", "success");
+            push("Welcome to Liv Premium!", "success");
             await reload();
           } catch (err) {
             push(err.message || "Payment could not be confirmed.", "error");
@@ -255,7 +255,7 @@ export default function Subscription() {
             {!active && !config?.configured && (
               <div className="sub-cta">
                 <Button className="btn-block" variant="btn-primary" disabled title="Payments are not configured on this server yet.">
-                  Unlock Vamshi Premium
+                  Unlock Liv Premium
                 </Button>
                 <div className="small muted" style={{ marginTop: 10, textAlign: "center" }}>
                   Payments are not configured on this server yet. Please try again later.
@@ -314,7 +314,7 @@ export default function Subscription() {
 
                 {/* Price breakdown */}
                 <div className="price-row">
-                  <span>Vamshi Premium {formatPaise(planAmountPaise)}/month</span>
+                  <span>Liv Premium {formatPaise(planAmountPaise)}/month</span>
                   <span>{formatPaise(planAmountPaise)}</span>
                 </div>
                 {appliedPromo && appliedPromo.discountAmount > 0 && (
@@ -364,7 +364,7 @@ export default function Subscription() {
                 <div className="hstack" style={{ gap: 6, marginTop: 10, justifyContent: "center" }}>
                   <ShieldCheck size={14} style={{ color: "var(--green)" }} />
                   <span className="small muted">
-                    Secure payment via Razorpay · No card details stored on Vamshi servers
+                    Secure payment via Razorpay · No card details stored on Liv servers
                   </span>
                 </div>
               </div>

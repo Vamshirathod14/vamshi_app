@@ -33,7 +33,7 @@ export default function ForgotPassword() {
       <div className="auth-card">
         <div className="auth-logo">
           <div className="logo-mark">V</div>
-          <h1>Vamshi</h1>
+          <h1>Liv</h1>
         </div>
         <h2>Forgot your password?</h2>
         <p className="auth-sub">

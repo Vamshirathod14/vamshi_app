@@ -20,14 +20,14 @@ import {
 } from "lucide-react";
 import { Button } from "../components/UI.jsx";
 
-const SEEN_KEY = "vamshi:seen-onboarding";
+const SEEN_KEY = "liv:seen-onboarding";
 
 const STEPS = [
   {
     icon: Wallet,
     emoji: "📊",
-    title: "📊 Vamshi Smart Expense Tracker",
-    text: "Welcome to Vamshi, your premium daily accounting ledger. Take complete control of your financial ecosystem. Log every single income, cash inflow, and recurring expenditure effortlessly in Indian Rupees (INR). Our modern categorization engine offers rich analytical charts that update in real-time, providing deep visual breakdowns of your spending habits so you can save wisely and grow your wealth sustainably.",
+    title: "📊 Liv Smart Expense Tracker",
+    text: "Welcome to Liv, your premium daily accounting ledger. Take complete control of your financial ecosystem. Log every single income, cash inflow, and recurring expenditure effortlessly in Indian Rupees (INR). Our modern categorization engine offers rich analytical charts that update in real-time, providing deep visual breakdowns of your spending habits so you can save wisely and grow your wealth sustainably.",
     features: [
       { icon: Wallet, label: "One-tap income & expense logging" },
       { icon: IndianRupee, label: "Everything works in ₹ (INR)" },
@@ -39,7 +39,7 @@ const STEPS = [
     icon: Rocket,
     emoji: "🎯",
     title: "🎯 Strategic Financial Goals & Milestones",
-    text: "Plan for your future milestones with precision. Whether you are saving for an emergency cushion, an investment asset, or a dream vacation, Vamshi helps you configure concrete financial targets. Allocate budgets dynamically, track your saving velocity week-over-week, and unlock progress indicators that keep you disciplined until your milestone is completely achieved.",
+    text: "Plan for your future milestones with precision. Whether you are saving for an emergency cushion, an investment asset, or a dream vacation, Liv helps you configure concrete financial targets. Allocate budgets dynamically, track your saving velocity week-over-week, and unlock progress indicators that keep you disciplined until your milestone is completely achieved.",
     features: [
       { icon: Target, label: "Set precise saving targets" },
       { icon: PiggyBank, label: "Weekly saving-velocity tracking" },
@@ -51,7 +51,7 @@ const STEPS = [
     icon: ListTodo,
     emoji: "✅",
     title: "✅ Daily Task Management & Payment Reminders",
-    text: "Vamshi is an integrated life productivity hub. Seamlessly organize your busy routines, pen secure financial notes, and set high-priority notifications for upcoming utilities, billing cycles, and credit card dues. Avoid stressful deadlines and handle your daily obligations with automated trackers built directly into your dashboard.",
+    text: "Liv is an integrated life productivity hub. Seamlessly organize your busy routines, pen secure financial notes, and set high-priority notifications for upcoming utilities, billing cycles, and credit card dues. Avoid stressful deadlines and handle your daily obligations with automated trackers built directly into your dashboard.",
     features: [
       { icon: ListChecks, label: "Organized daily task routines" },
       { icon: Lock, label: "Secure financial note-taking" },
@@ -97,7 +97,7 @@ export default function OnboardingPage() {
       <div className="auth-card onboarding-card">
         <div className="auth-logo">
           <div className="logo-mark">V</div>
-          <h1>Vamshi</h1>
+          <h1>Liv</h1>
         </div>
 
         <div className="ob-top">
@@ -171,7 +171,7 @@ export default function OnboardingPage() {
         </p>
 
         <footer className="ob-foot">
-          <span className="small muted">© 2026 Vamshi · Your finance &amp; life home</span>
+          <span className="small muted">© 2026 Liv · Your finance &amp; life home</span>
           <div className="ob-links">
             <Link to="/terms">Terms &amp; Conditions</Link>
             <span className="ob-sep">·</span>

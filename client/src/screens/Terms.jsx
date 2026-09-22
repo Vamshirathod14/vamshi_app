@@ -5,11 +5,11 @@ import { useAuth } from "../context/AuthContext.jsx";
 const SECTIONS = [
   {
     h: "1. Acceptance of Terms",
-    p: "By accessing or using Vamshi (\"the app\"), you agree to be bound by these Terms & Conditions. If you do not agree, please do not use the app.",
+    p: "By accessing or using Liv (\"the app\"), you agree to be bound by these Terms & Conditions. If you do not agree, please do not use the app.",
   },
   {
     h: "2. The Service",
-    p: "Vamshi is a personal finance companion that helps you track income, expenses, budgets, goals, tasks, notes and reminders. The app is currently provided free of charge and may display ads. We may change or discontinue features at any time.",
+    p: "Liv is a personal finance companion that helps you track income, expenses, budgets, goals, tasks, notes and reminders. The app is currently provided free of charge and may display ads. We may change or discontinue features at any time.",
   },
   {
     h: "3. Account & Security",
@@ -25,7 +25,7 @@ const SECTIONS = [
   },
   {
     h: "6. Accuracy of Financial Information",
-    p: "Vamshi stores whatever you enter. We do not connect to your bank, and balances, budgets or insights are only as accurate as the information you provide. The app is a tracking tool, not an advisor.",
+    p: "Liv stores whatever you enter. We do not connect to your bank, and balances, budgets or insights are only as accurate as the information you provide. The app is a tracking tool, not an advisor.",
   },
   {
     h: "7. No Professional Advice",
@@ -41,7 +41,7 @@ const SECTIONS = [
   },
   {
     h: "10. Limitation of Liability",
-    p: "Vamshi is provided \"as is\" without warranties of any kind. To the maximum extent permitted by law, we are not liable for any indirect or consequential loss arising from your use of the app.",
+    p: "Liv is provided \"as is\" without warranties of any kind. To the maximum extent permitted by law, we are not liable for any indirect or consequential loss arising from your use of the app.",
   },
   {
     h: "11. Changes to these Terms",
@@ -49,7 +49,7 @@ const SECTIONS = [
   },
   {
     h: "12. Contact",
-    p: "Questions about these terms? Write to us at support@vamshi.app and we'll get back to you.",
+    p: "Questions about these terms? Write to us at support@liv.app and we'll get back to you.",
   },
 ];
 
@@ -61,7 +61,7 @@ export default function Terms() {
       <div className="auth-card terms-card">
         <div className="auth-logo">
           <div className="logo-mark">V</div>
-          <h1>Vamshi</h1>
+          <h1>Liv</h1>
         </div>
         <Link to={user ? "/" : "/login"} className="back">
           <ChevronLeft size={18} /> Back to {user ? "home" : "sign in"}

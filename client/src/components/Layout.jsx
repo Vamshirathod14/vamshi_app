@@ -78,7 +78,7 @@ export default function Layout({ children, onOpenAdd }) {
         <Link to="/" className="side-brand">
           <div className="logo-mark">V</div>
           <div>
-            <div className="side-brand-name">Vamshi</div>
+            <div className="side-brand-name">Liv</div>
             <div className="side-brand-tag">Personal finance</div>
           </div>
         </Link>
