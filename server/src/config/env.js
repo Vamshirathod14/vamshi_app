@@ -86,6 +86,9 @@ export const env = {
   smtpUser: process.env.SMTP_USER || "",
   smtpPass: process.env.SMTP_PASS || "",
   mailFrom: (process.env.MAIL_FROM || "").replace(/^["']|["']$/g, ""),
+  // Brevo HTTP API key (xkeysib-...) — used instead of SMTP when present.
+  // HTTPS (443) is far more reliable from Render than a raw SMTP relay.
+  brevoApiKey: process.env.BREVO_API_KEY || "",
 
   // Web Push (VAPID). Public key is safe to send to browsers; the private key
   // must NEVER leave the server. Configure locally with:
