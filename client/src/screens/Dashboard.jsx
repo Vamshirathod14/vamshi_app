@@ -1,12 +1,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, ChevronRight, Plus, Lightbulb } from "lucide-react";
+import { Bell, ChevronRight, Plus, Lightbulb, Coins, PartyPopper, Banknote, ArrowRightLeft } from "lucide-react";
 import { api } from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useData } from "../context/DataContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import Layout from "../components/Layout.jsx";
 import QuickAdd from "../components/QuickAdd.jsx";
+import CatIcon from "../components/CatIcon.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
 import GoalForm from "../components/GoalForm.jsx";
 import TaskForm from "../components/TaskForm.jsx";
@@ -141,6 +142,8 @@ export default function Dashboard() {
           </div>
         </div>
 
+        <QuickAccess />
+
         {/* upayments */}
         {data.upcomingPayments?.length > 0 && (
           <div style={{ marginTop: 24 }}>
@@ -176,7 +179,7 @@ export default function Dashboard() {
         {data.recentTransactions.length === 0 ? (
           <Card>
             <EmptyState
-              emoji="🪙"
+              icon={<Coins size={30} />}
               title="No transactions yet"
               sub="Start tracking where your money goes."
               action={<Button variant="btn-primary btn-sm" onClick={() => openForm("expense")}>Add Expense</Button>}
@@ -192,7 +195,13 @@ export default function Dashboard() {
                 onClick={() => navigate(`/transactions/${t._id}`)}
               >
                 <div className="chip sm" style={{ background: t.type === "income" ? "var(--green-soft)" : t.type === "transfer" ? "var(--accent-soft)" : "var(--bg-sunken)" }}>
-                  {t.type === "income" ? "💵" : t.type === "transfer" ? "↔️" : t.categoryId?.emoji || "💸"}
+                  {t.type === "income" ? (
+                    <Banknote size={16} />
+                  ) : t.type === "transfer" ? (
+                    <ArrowRightLeft size={16} />
+                  ) : (
+                    <CatIcon category={t.categoryId} size={16} />
+                  )}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 550, fontSize: 14.5, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
@@ -217,7 +226,7 @@ export default function Dashboard() {
         </div>
         {data.todayTasks.length === 0 ? (
           <Card>
-            <EmptyState emoji="🎉" title="You're all clear" sub="No tasks for today." action={<Button variant="btn-sm" onClick={() => openForm("task")}>Add Task</Button>} />
+            <EmptyState icon={<PartyPopper size={30} />} title="You're all clear" sub="No tasks for today." action={<Button variant="btn-sm" onClick={() => openForm("task")}>Add Task</Button>} />
           </Card>
         ) : (
           <Card style={{ padding: "6px 16px" }}>
@@ -279,7 +288,7 @@ export default function Dashboard() {
               {data.goals.map((g, i) => (
                 <div key={g.id} style={{ marginTop: i ? 16 : 0 }}>
                   <div className="hstack" style={{ marginBottom: 8 }}>
-                    <div className="chip sm">{g.emoji}</div>
+                    <div className="chip sm"><CatIcon category={g} size={15} /></div>
                     <div style={{ flex: 1, fontWeight: 600, fontSize: 14.5 }}>{g.name}</div>
                     <div className="small muted">{g.percent}%</div>
                   </div>

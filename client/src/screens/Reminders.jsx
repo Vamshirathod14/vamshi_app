@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, ChevronLeft, Trash2 } from "lucide-react";
+import { Plus, ChevronLeft, Trash2, AlarmClock } from "lucide-react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
 import Layout from "../components/Layout.jsx";
@@ -85,7 +85,7 @@ export default function Reminders() {
         {loading ? (
           <Skeleton lines={7} />
         ) : reminders.length === 0 ? (
-          <EmptyState emoji="🔔" title="No reminders" sub="Set reminders for calls, payments and habits." action={<Button variant="btn-primary" onClick={() => { setEditReminder(null); setFormOpen(true); }}>New Reminder</Button>} />
+          <EmptyState icon={<AlarmClock size={30} />} title="No reminders" sub="Set reminders for calls, payments and habits." action={<Button variant="btn-primary" onClick={() => { setEditReminder(null); setFormOpen(true); }}>New Reminder</Button>} />
         ) : (
           <>
             {upcoming.length > 0 && (

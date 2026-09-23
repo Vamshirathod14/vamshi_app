@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, ChevronLeft, Search, Pin } from "lucide-react";
+import { Plus, ChevronLeft, Search, Pin, NotebookPen } from "lucide-react";
 import { api } from "../api/client.js";
 import Layout from "../components/Layout.jsx";
 import NoteForm from "../components/NoteForm.jsx";
@@ -67,7 +67,7 @@ export default function Notes() {
           <Skeleton lines={6} />
         ) : notes.length === 0 ? (
           <EmptyState
-            emoji="📝"
+            icon={<NotebookPen size={30} />}
             title={archived ? "No archived notes" : "No notes yet"}
             sub={archived ? "Archive notes to keep them here." : "Capture thoughts, plans and checklists."}
             action={<span />}

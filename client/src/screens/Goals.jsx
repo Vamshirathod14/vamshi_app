@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Trash2, ChevronLeft, RotateCcw } from "lucide-react";
+import { Plus, Trash2, ChevronLeft, RotateCcw, Target } from "lucide-react";
 import { api } from "../api/client.js";
 import { useData } from "../context/DataContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
@@ -8,6 +8,7 @@ import Layout from "../components/Layout.jsx";
 import QuickAdd from "../components/QuickAdd.jsx";
 import GoalForm from "../components/GoalForm.jsx";
 import ContributionSheet from "../components/ContributionSheet.jsx";
+import CatIcon from "../components/CatIcon.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
 import TaskForm from "../components/TaskForm.jsx";
 import NoteForm from "../components/NoteForm.jsx";
@@ -92,7 +93,7 @@ export default function Goals() {
           <Skeleton lines={6} />
         ) : goals.length === 0 ? (
           <EmptyState
-            emoji="🎯"
+            icon={<Target size={30} />}
             title="Start your first goal"
             sub="Give your money a purpose — save for something you care about."
             action={<Button variant="btn-primary" onClick={() => setForm("goal")}>Create a Goal</Button>}
@@ -101,7 +102,7 @@ export default function Goals() {
           goals.map((g) => (
             <div className="goal-card" key={g._id}>
               <div className="goal-head">
-                <div className="chip lg" style={{ background: `${g.color}18`, fontSize: 24 }}>{g.emoji}</div>
+                <div className="chip lg" style={{ background: `${g.color}18` }}><CatIcon category={g} size={24} /></div>
                 <div className="goal-meta">
                   <div className="goal-name">{g.name}</div>
                   <div className="goal-sub">
@@ -110,7 +111,7 @@ export default function Goals() {
                   </div>
                 </div>
                 {g.isCompleted ? (
-                  <span className="badge green">Done 🎉</span>
+                  <span className="badge green">Done</span>
                 ) : (
                   <span className="badge accent">{g.percent}%</span>
                 )}

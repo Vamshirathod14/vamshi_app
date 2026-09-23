@@ -1,33 +1,26 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
-  BarChart3,
   Wallet,
   IndianRupee,
   Repeat,
-  Rocket,
+  BarChart3,
   Target,
   PiggyBank,
   Gauge,
-  ListTodo,
+  Rocket,
   ListChecks,
   Lock,
   BellRing,
   CalendarClock,
-  ChevronLeft,
-  ChevronRight,
   ArrowRight,
+  LogIn,
 } from "lucide-react";
-import { Button } from "../components/UI.jsx";
 
-const SEEN_KEY = "liv:seen-onboarding";
-
-const STEPS = [
+const SECTIONS = [
   {
     icon: Wallet,
-    emoji: "📊",
-    title: "📊 Liv Smart Expense Tracker",
-    text: "Welcome to Liv, your premium daily accounting ledger. Take complete control of your financial ecosystem. Log every single income, cash inflow, and recurring expenditure effortlessly in Indian Rupees (INR). Our modern categorization engine offers rich analytical charts that update in real-time, providing deep visual breakdowns of your spending habits so you can save wisely and grow your wealth sustainably.",
+    title: "📊 Smart Expense & Income Tracking Ledger",
+    text: "Take absolute control of your daily financial health. Log every single income, cash inflow, and recurring expenditure effortlessly in Indian Rupees (INR). Our modern categorization engine offers rich analytical charts that update in real-time, providing deep visual breakdowns of your spending habits so you can save wisely and grow your wealth sustainably.",
     features: [
       { icon: Wallet, label: "One-tap income & expense logging" },
       { icon: IndianRupee, label: "Everything works in ₹ (INR)" },
@@ -37,8 +30,7 @@ const STEPS = [
   },
   {
     icon: Rocket,
-    emoji: "🎯",
-    title: "🎯 Strategic Financial Goals & Milestones",
+    title: "🎯 Strategic Financial Goals & Target Milestones",
     text: "Plan for your future milestones with precision. Whether you are saving for an emergency cushion, an investment asset, or a dream vacation, Liv helps you configure concrete financial targets. Allocate budgets dynamically, track your saving velocity week-over-week, and unlock progress indicators that keep you disciplined until your milestone is completely achieved.",
     features: [
       { icon: Target, label: "Set precise saving targets" },
@@ -48,8 +40,7 @@ const STEPS = [
     ],
   },
   {
-    icon: ListTodo,
-    emoji: "✅",
+    icon: ListChecks,
     title: "✅ Daily Task Management & Payment Reminders",
     text: "Liv is an integrated life productivity hub. Seamlessly organize your busy routines, pen secure financial notes, and set high-priority notifications for upcoming utilities, billing cycles, and credit card dues. Avoid stressful deadlines and handle your daily obligations with automated trackers built directly into your dashboard.",
     features: [
@@ -62,123 +53,90 @@ const STEPS = [
 ];
 
 export default function OnboardingPage() {
-  const navigate = useNavigate();
-  const [step, setStep] = useState(0);
-  const last = step === STEPS.length - 1;
-
-  // Show onboarding only on a user's very first visit. Every later visit is
-  // routed straight to the login screen.
-  useEffect(() => {
-    const seen = localStorage.getItem(SEEN_KEY) === "1";
-    if (seen) {
-      navigate("/login", { replace: true });
-    } else {
-      localStorage.setItem(SEEN_KEY, "1");
-    }
-  }, [navigate]);
-
-  function goLogin() {
-    localStorage.setItem(SEEN_KEY, "1");
-    navigate("/login");
-  }
-  function next() {
-    if (last) goLogin();
-    else setStep((s) => s + 1);
-  }
-  function prev() {
-    setStep((s) => Math.max(0, s - 1));
-  }
-
-  const s = STEPS[step];
-  const Icon = s.icon;
-
   return (
-    <div className="auth-wrap onboarding-wrap">
-      <div className="auth-card onboarding-card">
-        <div className="auth-logo">
+    <div className="landing">
+      <nav className="landing-nav">
+        <Link to="/" className="landing-brand">
           <div className="logo-mark">V</div>
-          <h1>Liv</h1>
-        </div>
+          <span className="landing-brand-name">Liv</span>
+        </Link>
+        <Link to="/login" className="btn btn-primary landing-login">
+          <LogIn size={16} /> Login / Open App
+        </Link>
+      </nav>
 
-        <div className="ob-top">
-          <div className="ob-progress">
-            {STEPS.map((_, i) => (
-              <span key={i} className={`ob-seg ${i <= step ? "on" : ""}`} />
-            ))}
+      <header className="landing-hero">
+        <section className="landing-inner">
+          <div className="landing-badge">Your private finance &amp; life companion</div>
+          <h1 className="landing-title">
+            Liv — The Ultimate All-in-One Personal Finance &amp; Productivity Hub
+          </h1>
+          <p className="landing-sub">
+            Liv brings your money and your life into one calm, private place. Track every rupee you
+            earn and spend with effortless clarity in Indian Rupees (INR), capture recurring bills
+            and subscriptions before they surprise you, and plan your day with tasks, notes and
+            reminders that keep you ahead of deadlines. Rich analytical charts, budgets and savings
+            goals turn your daily habits into a clear picture — so you can save more, stress less
+            and stay in control, all from your phone.
+          </p>
+          <div className="landing-hero-cta">
+            <Link to="/login" className="btn btn-primary btn-lg">
+              Open App Free <ArrowRight size={17} />
+            </Link>
+            <Link to="/register" className="btn btn-outline btn-lg">
+              Create Account
+            </Link>
           </div>
-          <button className="ob-skip" onClick={goLogin}>
-            Skip to Login
-          </button>
-        </div>
+        </section>
+      </header>
 
-        <div className="ob-body">
-          <div className="ob-icon" key={step}>
-            <span className="ob-emoji">{s.emoji}</span>
-            <Icon size={34} strokeWidth={1.8} />
-          </div>
-
-          <h2 className="ob-title">{s.title}</h2>
-          <p className="ob-text">{s.text}</p>
-
-          <div className="ob-features">
-            {s.features.map((f) => {
-              const F = f.icon;
-              return (
-                <div className="ob-feat" key={f.label}>
-                  <span className="ob-feat-ic">
-                    <F size={15} />
-                  </span>
-                  <span>{f.label}</span>
+      <main className="landing-inner">
+        {SECTIONS.map((s, i) => (
+          <section className="landing-section" key={s.title}>
+            <div className="landing-card">
+              <div className="landing-section-head">
+                <div className="landing-section-ic">
+                  <s.icon size={22} />
                 </div>
-              );
-            })}
-          </div>
+                <h2 className="landing-section-title">{s.title}</h2>
+              </div>
+              <p className="landing-section-text">{s.text}</p>
+              <div className="ob-features landing-features">
+                {s.features.map((f, fi) => {
+                  const F = f.icon;
+                  return (
+                    <div className="ob-feat" key={f.label} style={{ animationDelay: `${fi * 40}ms` }}>
+                      <span className="ob-feat-ic">
+                        <F size={15} />
+                      </span>
+                      <span>{f.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        ))}
+
+        <section className="landing-cta">
+          <h3>Ready to take control of your money?</h3>
+          <p className="small muted" style={{ margin: "8px 0 18px" }}>
+            Free to start. No bank-account connection, no card required — sign up with just your email.
+          </p>
+          <Link to="/register" className="btn btn-primary btn-lg">
+            Get Started Free <ArrowRight size={17} />
+          </Link>
+        </section>
+      </main>
+
+      <footer className="landing-foot">
+        <span className="small muted">© 2026 Liv · Your finance &amp; life home</span>
+        <div className="ob-links">
+          <Link to="/terms">Terms &amp; Conditions</Link>
+          <span className="ob-sep">·</span>
+          <Link to="/privacy-policy">Privacy Policy</Link>
         </div>
-
-        <div className="ob-nav">
-          {step > 0 ? (
-            <Button variant="btn-outline" onClick={prev}>
-              <ChevronLeft size={16} /> Back
-            </Button>
-          ) : (
-            <span />
-          )}
-          <div className="ob-dots">
-            {STEPS.map((_, i) => (
-              <button
-                key={i}
-                aria-label={`Step ${i + 1}`}
-                className={`ob-dot ${i === step ? "on" : ""}`}
-                onClick={() => setStep(i)}
-              />
-            ))}
-          </div>
-          <Button variant="btn-primary" onClick={next}>
-            {last ? (
-              <>
-                Get Started <ArrowRight size={16} />
-              </>
-            ) : (
-              <>
-                Next <ChevronRight size={16} />
-              </>
-            )}
-          </Button>
-        </div>
-
-        <p className="ob-step-label">
-          Step {step + 1} of {STEPS.length}
-        </p>
-
-        <footer className="ob-foot">
-          <span className="small muted">© 2026 Liv · Your finance &amp; life home</span>
-          <div className="ob-links">
-            <Link to="/terms">Terms &amp; Conditions</Link>
-            <span className="ob-sep">·</span>
-            <Link to="/privacy-policy">Privacy Policy</Link>
-          </div>
-        </footer>
-      </div>
+      </footer>
     </div>
   );
 }

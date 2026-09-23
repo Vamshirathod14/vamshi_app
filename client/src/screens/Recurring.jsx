@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, ChevronLeft, Trash2, Pencil, Play } from "lucide-react";
+import { Plus, ChevronLeft, Trash2, Pencil, Play, RefreshCw } from "lucide-react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
 import Layout from "../components/Layout.jsx";
@@ -86,7 +86,7 @@ export default function Recurring() {
         {loading ? (
           <Skeleton lines={7} />
         ) : items.length === 0 ? (
-          <EmptyState emoji="🔁" title="No recurring transactions" sub="Rent, salaries, subscriptions, EMIs — set them once." action={<Button variant="btn-primary" onClick={() => { setEditItem(null); setFormOpen(true); }}>Add Recurring</Button>} />
+          <EmptyState icon={<RefreshCw size={30} />} title="No recurring transactions" sub="Rent, salaries, subscriptions, EMIs — set them once." action={<Button variant="btn-primary" onClick={() => { setEditItem(null); setFormOpen(true); }}>Add Recurring</Button>} />
         ) : (
           <div className="list-card">
             {items.map((r) => (

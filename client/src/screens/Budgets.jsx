@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, ChevronLeft, Trash2, Pencil } from "lucide-react";
+import { Plus, ChevronLeft, Trash2, Pencil, BarChart3 } from "lucide-react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
 import Layout from "../components/Layout.jsx";
 import BudgetForm from "../components/BudgetForm.jsx";
+import CatIcon from "../components/CatIcon.jsx";
 import QuickAdd from "../components/QuickAdd.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
 import TaskForm from "../components/TaskForm.jsx";
@@ -88,7 +89,7 @@ export default function Budgets() {
         {loading ? (
           <Skeleton lines={6} />
         ) : budgets.length === 0 ? (
-          <EmptyState emoji="📊" title="No budgets"
+          <EmptyState icon={<BarChart3 size={30} />} title="No budgets"
             sub="Set monthly limits per category to stay on track."
             action={<Button variant="btn-primary" onClick={() => { setEditBudget(null); setFormOpen(true); }}>Create Budget</Button>} />
         ) : (
@@ -99,7 +100,7 @@ export default function Budgets() {
             return (
               <div className={`category-card ${over ? "over" : ""}`} key={b._id}>
                 <div className="budget-head">
-                  <div className="chip lg" style={{ background: "var(--bg-sunken)", fontSize: 22 }}>{b.category.emoji}</div>
+                  <div className="chip lg" style={{ background: "var(--bg-sunken)" }}><CatIcon category={b.category} size={24} /></div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div>{b.category.name}</div>
                     <div className="small muted">{formatINR(b.spent)} of {formatINR(b.limit)}</div>

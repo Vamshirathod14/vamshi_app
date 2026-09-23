@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
 import { Sheet, Button, Field, MoneyInput, ChipItem } from "./UI.jsx";
+import CatIcon from "./CatIcon.jsx";
 
 export default function BudgetForm({ open, onClose, budget, onSuccess }) {
   const { push } = useToast();
@@ -55,7 +56,7 @@ export default function BudgetForm({ open, onClose, budget, onSuccess }) {
               key={c._id}
               active={categoryId === c._id}
               onClick={() => setCategoryId(c._id)}
-              emoji={c.emoji}
+              icon={<CatIcon category={c} size={20} />}
               label={c.name}
             />
           ))}

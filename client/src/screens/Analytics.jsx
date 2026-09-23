@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { TrendingUp, Flame, Crown, CalendarDays, Wallet, CreditCard } from "lucide-react";
+import { TrendingUp, Flame, Crown, CalendarDays, Wallet, CreditCard, BarChart3 } from "lucide-react";
 import {
   ResponsiveContainer,
   PieChart,
@@ -21,6 +21,7 @@ import NoteForm from "../components/NoteForm.jsx";
 import ReminderForm from "../components/ReminderForm.jsx";
 import GoalForm from "../components/GoalForm.jsx";
 import { EmptyState, Skeleton, Segmented } from "../components/UI.jsx";
+import CatIcon from "../components/CatIcon.jsx";
 import { formatINR, PAYMENT_METHOD_LABELS } from "../utils/format.js";
 
 const PERIODS = [
@@ -155,7 +156,7 @@ export default function Analytics() {
                 <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
                   {categories.slice(0, 6).map((c) => (
                     <div key={c.id} className="row">
-                      <span style={{ fontSize: 15 }}>{c.emoji}</span>
+                      <span><CatIcon category={c} size={15} /></span>
                       <span style={{ flex: 1, fontSize: 13.5, fontWeight: 550 }}>{c.name}</span>
                       <span className="small muted">{Math.round((c.amount / (summary.expense || 1)) * 100)}%</span>
                       <span style={{ fontWeight: 650, fontSize: 13.5 }}>{formatINR(c.amount)}</span>
@@ -213,7 +214,7 @@ export default function Analytics() {
             )}
 
             {pieData.length === 0 && insights?.byMethod?.length === 0 && (
-              <EmptyState emoji="📊" title="No data in this period" sub="Add some transactions to see insights." />
+              <EmptyState icon={<BarChart3 size={30} />} title="No data in this period" sub="Add some transactions to see insights." />
             )}
           </>
         )}

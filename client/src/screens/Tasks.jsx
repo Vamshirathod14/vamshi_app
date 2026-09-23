@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, ChevronLeft, Trash2 } from "lucide-react";
+import { Plus, ChevronLeft, Trash2, PartyPopper, ClipboardList } from "lucide-react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
 import Layout from "../components/Layout.jsx";
@@ -100,7 +100,7 @@ export default function Tasks() {
           <Skeleton lines={7} />
         ) : tasks.length === 0 ? (
           <EmptyState
-            emoji={filter === "completed" ? "🎉" : "🗒️"}
+            icon={filter === "completed" ? <PartyPopper size={30} /> : <ClipboardList size={30} />}
             title={filter === "completed" ? "Nothing completed yet" : filter === "overdue" ? "No overdue tasks" : filter === "upcoming" ? "No upcoming tasks" : "You're all clear"}
             sub={filter === "today" ? "No tasks for today." : "Tasks will appear here."}
             action={<Button variant="btn-primary" onClick={() => { setEditTask(null); setFormOpen(true); }}>Add Task</Button>}

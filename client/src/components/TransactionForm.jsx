@@ -4,7 +4,8 @@ import { api } from "../api/client.js";
 import { useData } from "../context/DataContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import { Sheet, Button, Field, MoneyInput, ChipItem } from "./UI.jsx";
-import { PAYMENT_METHOD_LABELS, PAYMENT_ICONS, ACCOUNT_TYPE_LABELS, formatDateFull, toDateInput, toTimeInput } from "../utils/format.js";
+import { PAYMENT_METHOD_LABELS, toDateInput, toTimeInput } from "../utils/format.js";
+import CatIcon, { PayIcon, AccountTypeIcon } from "./CatIcon.jsx";
 
 const PAYMENT_OPTIONS = ["upi", "cash", "credit-card", "debit-card", "bank-transfer", "other"];
 
@@ -168,7 +169,7 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
                     key={a._id}
                     active={fromAccountId === a._id}
                     onClick={() => { setFromAccountId(a._id); setAccountError(""); }}
-                    emoji={a.type === "cash" ? "💵" : a.type === "bank" ? "🏦" : "💳"}
+                    icon={<AccountTypeIcon type={a.type} size={20} />}
                     label={a.name}
                   />
                 ))}
@@ -181,7 +182,7 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
                     key={a._id}
                     active={toAccountId === a._id}
                     onClick={() => { setToAccountId(a._id); setAccountError(""); }}
-                    emoji={a.type === "cash" ? "💵" : a.type === "bank" ? "🏦" : "💳"}
+                    icon={<AccountTypeIcon type={a.type} size={20} />}
                     label={a.name}
                   />
                 ))}
@@ -200,7 +201,7 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
                     key={c._id}
                     active={categoryId === c._id}
                     onClick={() => setCategoryId(c._id)}
-                    emoji={c.emoji}
+                    icon={<CatIcon category={c} size={20} />}
                     label={c.name}
                   />
                 ))}
@@ -228,7 +229,7 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
                       key={a._id}
                       active={accountId === a._id}
                       onClick={() => setAccountId(a._id)}
-                      emoji={a.type === "cash" ? "💵" : a.type === "bank" ? "🏦" : "💳"}
+                      icon={<AccountTypeIcon type={a.type} size={20} />}
                       label={a.name}
                     />
                   ))}
@@ -242,7 +243,7 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
                     key={m}
                     active={paymentMethod === m}
                     onClick={() => setPaymentMethod(m)}
-                    emoji={PAYMENT_ICONS[m]}
+                    icon={<PayIcon method={m} size={20} />}
                     label={PAYMENT_METHOD_LABELS[m]}
                   />
                 ))}
@@ -260,7 +261,7 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
                     key={c._id}
                     active={source === c.name}
                     onClick={() => setSource(c.name)}
-                    emoji={c.emoji}
+                    icon={<CatIcon category={c} size={20} />}
                     label={c.name}
                   />
                 ))}
@@ -274,7 +275,7 @@ export default function TransactionForm({ open, onClose, type = "expense", txn =
                       key={a._id}
                       active={accountId === a._id}
                       onClick={() => setAccountId(a._id)}
-                      emoji={a.type === "cash" ? "💵" : a.type === "bank" ? "🏦" : "💳"}
+                      icon={<AccountTypeIcon type={a.type} size={20} />}
                       label={a.name}
                     />
                   ))}

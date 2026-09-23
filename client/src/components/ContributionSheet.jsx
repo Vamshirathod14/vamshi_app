@@ -2,6 +2,7 @@ import { useState } from "react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
 import { Sheet, Button, Field, MoneyInput, ChipItem } from "./UI.jsx";
+import { AccountTypeIcon } from "./CatIcon.jsx";
 
 export default function ContributionSheet({ open, onClose, goal, accounts, onSuccess }) {
   const { push } = useToast();
@@ -49,7 +50,7 @@ export default function ContributionSheet({ open, onClose, goal, accounts, onSuc
               key={a._id}
               active={accountId === a._id}
               onClick={() => { setAccountId(a._id); setFromGoal(false); }}
-              emoji={a.type === "cash" ? "💵" : a.type === "bank" ? "🏦" : "💳"}
+              icon={<AccountTypeIcon type={a.type} size={20} />}
               label={a.name}
             />
           ))}

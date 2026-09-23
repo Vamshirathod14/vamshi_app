@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, ChevronLeft } from "lucide-react";
+import { Search, ChevronLeft, Banknote, ArrowRightLeft } from "lucide-react";
 import { api } from "../api/client.js";
 import { useData } from "../context/DataContext.jsx";
 import Layout from "../components/Layout.jsx";
 import QuickAdd from "../components/QuickAdd.jsx";
+import CatIcon from "../components/CatIcon.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
 import TaskForm from "../components/TaskForm.jsx";
 import NoteForm from "../components/NoteForm.jsx";
@@ -112,7 +113,7 @@ export default function Transactions() {
           <Skeleton lines={8} />
         ) : transactions.length === 0 ? (
           <EmptyState
-            emoji="🔍"
+            icon={<Search size={30} />}
             title="No transactions found"
             sub={filters.q ? "Try a different search." : "Record your first transaction to get started."}
           />
@@ -135,7 +136,13 @@ export default function Transactions() {
                     onClick={() => navigate(`/transactions/${t._id}`)}
                   >
                     <div className="chip sm" style={{ background: t.type === "income" ? "var(--green-soft)" : t.type === "transfer" ? "var(--accent-soft)" : "var(--bg-sunken)" }}>
-                      {t.type === "income" ? "💵" : t.type === "transfer" ? "↔️" : t.categoryId?.emoji || "💸"}
+                      {t.type === "income" ? (
+                        <Banknote size={16} />
+                      ) : t.type === "transfer" ? (
+                        <ArrowRightLeft size={16} />
+                      ) : (
+                        <CatIcon category={t.categoryId} size={16} />
+                      )}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div className="l-title" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>

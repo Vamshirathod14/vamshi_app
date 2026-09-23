@@ -12,9 +12,9 @@ import NoteForm from "../components/NoteForm.jsx";
 import ReminderForm from "../components/ReminderForm.jsx";
 import GoalForm from "../components/GoalForm.jsx";
 import { EmptyState, Skeleton, Modal, Button } from "../components/UI.jsx";
+import { AccountTypeIcon } from "../components/CatIcon.jsx";
+import { Wallet } from "lucide-react";
 import { formatINR, ACCOUNT_TYPE_LABELS } from "../utils/format.js";
-
-const EMOJI = { cash: "💵", bank: "🏦", card: "💳", investment: "📈" };
 
 export default function Accounts() {
   const navigate = useNavigate();
@@ -81,13 +81,13 @@ export default function Accounts() {
         {loading ? (
           <Skeleton lines={5} />
         ) : accounts.length === 0 ? (
-          <EmptyState emoji="👛" title="No accounts" sub="Add cash, bank or card accounts to track balances." action={<Button variant="btn-primary" onClick={() => { setEditAccount(null); setFormOpen(true); }}>Add Account</Button>} />
+          <EmptyState icon={<Wallet size={30} />} title="No accounts" sub="Add cash, bank or card accounts to track balances." action={<Button variant="btn-primary" onClick={() => { setEditAccount(null); setFormOpen(true); }}>Add Account</Button>} />
         ) : (
           <div className="list-card">
             {accounts.map((a) => (
               <div key={a._id} className="list-row">
                 <div className="set-ico" style={{ minWidth: 40, height: 40, background: a.color ? `${a.color}20` : "var(--bg-sunken)" }}>
-                  {EMOJI[a.type] || "🏦"}
+                  <AccountTypeIcon type={a.type} size={20} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <div className="l-title">{a.name}</div>

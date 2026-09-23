@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ChevronLeft, Camera, Trash2, Pencil, Download } from "lucide-react";
+import { ChevronLeft, Camera, Trash2, Pencil, Download, Banknote, ArrowRightLeft } from "lucide-react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
 import { useData } from "../context/DataContext.jsx";
 import Layout from "../components/Layout.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
+import CatIcon from "../components/CatIcon.jsx";
 import { Button, Skeleton, Modal } from "../components/UI.jsx";
 import { formatINR, formatDateFull, PAYMENT_METHOD_LABELS } from "../utils/format.js";
 
@@ -80,7 +81,13 @@ export default function TransactionDetail() {
 
   const isIncome = txn?.type === "income";
   const isTransfer = txn?.type === "transfer";
-  const icon = isIncome ? "💵" : isTransfer ? "↔️" : txn?.categoryId?.emoji || "💸";
+  const icon = isIncome ? (
+    <Banknote size={32} />
+  ) : isTransfer ? (
+    <ArrowRightLeft size={32} />
+  ) : (
+    <CatIcon category={txn?.categoryId} size={32} />
+  );
 
   return (
     <Layout onOpenAdd={() => {}}>

@@ -96,13 +96,13 @@ export function Segmented({ options, value, onChange, equal = true }) {
   );
 }
 
-export function ChipItem({ active, onClick, emoji, label, color, condensed }) {
+export function ChipItem({ active, onClick, emoji, icon, label, color, condensed }) {
   return (
     <button
       className={`chip-item ${condensed ? "condensed" : ""} ${active ? "active" : ""}`}
       onClick={onClick}
     >
-      <span className="cat-emoji">{emoji || "📦"}</span>
+      <span className="cat-emoji">{icon || emoji || "📦"}</span>
       <span style={{ overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>{label}</span>
     </button>
   );

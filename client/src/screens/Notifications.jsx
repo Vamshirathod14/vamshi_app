@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Trash2, CheckCheck } from "lucide-react";
+import { ChevronLeft, Trash2, CheckCheck, Bell, ClipboardList, AlarmClock, CreditCard, Repeat, Target, LineChart, Info, CircleAlert, TriangleAlert, CircleCheck } from "lucide-react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
 import { usePushNotifications } from "../hooks/usePushNotifications.js";
@@ -9,18 +9,18 @@ import { EmptyState, Skeleton } from "../components/UI.jsx";
 import { timeAgo } from "../utils/format.js";
 
 const TYPE_ICONS = {
-  task: "📋",
-  reminder: "⏰",
-  payment: "💳",
-  recurring: "🔁",
-  budget: "🎯",
-  goal: "🎯",
-  summary: "📊",
-  system: "ℹ️",
+  task: <ClipboardList size={18} />,
+  reminder: <AlarmClock size={18} />,
+  payment: <CreditCard size={18} />,
+  recurring: <Repeat size={18} />,
+  budget: <Target size={18} />,
+  goal: <Target size={18} />,
+  summary: <LineChart size={18} />,
+  system: <Info size={18} />,
 };
 const severityIcon = (sev) =>
-  sev === "danger" || sev === "critical" ? "⛔" : sev === "warning" ? "⚠️" : sev === "success" ? "✅" : "";
-const iconOf = (n) => severityIcon(n.severity) || TYPE_ICONS[n.type] || "ℹ️";
+  sev === "danger" || sev === "critical" ? <CircleAlert size={18} /> : sev === "warning" ? <TriangleAlert size={18} /> : sev === "success" ? <CircleCheck size={18} /> : null;
+const iconOf = (n) => severityIcon(n.severity) || TYPE_ICONS[n.type] || <Info size={18} />;
 
 export default function Notifications() {
   const navigate = useNavigate();
@@ -107,7 +107,7 @@ export default function Notifications() {
 
         {pushHook.supported && !pushHook.enabled && (
           <div className="list-card" style={{ padding: 16, marginBottom: 14 }}>
-            <div style={{ fontWeight: 600 }}>🔔 Enable device notifications</div>
+            <div style={{ fontWeight: 600 }}><Bell size={15} style={{ verticalAlign: "-2px", marginRight: 6 }} />Enable device notifications</div>
             <p className="small muted" style={{ margin: "6px 0 12px" }}>
               Get reminders and task alerts on this device even when Liv is closed.
             </p>
@@ -132,7 +132,7 @@ export default function Notifications() {
 
         {pushHook.supported && pushHook.enabled && (
           <div className="list-card" style={{ padding: 16, marginBottom: 14 }}>
-            <div style={{ fontWeight: 600 }}>🔔 Device notifications on</div>
+            <div style={{ fontWeight: 600 }}><Bell size={15} style={{ verticalAlign: "-2px", marginRight: 6 }} />Device notifications on</div>
             <p className="small muted" style={{ margin: "5px 0 12px" }}>
               This device will get reminders and task alerts even when the app is
               closed. No popup during tests? Check System Settings → Notifications
@@ -144,7 +144,7 @@ export default function Notifications() {
         {loading ? (
           <Skeleton lines={8} />
         ) : items.length === 0 ? (
-          <EmptyState emoji="🔕" title="No notifications" sub="Budget alerts, task reminders and goal milestones will show up here." />
+          <EmptyState icon={<Bell size={30} />} title="No notifications" sub="Budget alerts, task reminders and goal milestones will show up here." />
         ) : (
           <div className="list-card">
             {items.map((n) => (

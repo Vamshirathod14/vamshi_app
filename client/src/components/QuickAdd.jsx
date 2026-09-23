@@ -3,13 +3,13 @@ import { ArrowRightLeft, CheckCircle, ClipboardList, Bell, Target, ArrowDownToLi
 import { Sheet } from "./UI.jsx";
 
 const ACTIONS = [
-  { key: "expense", label: "Expense", emoji: "💸", color: "ex" },
-  { key: "income", label: "Income", emoji: "💵", color: "in" },
-  { key: "transfer", label: "Transfer", emoji: "↔️", color: "tr" },
-  { key: "task", label: "Task", emoji: "✅", color: "tk" },
-  { key: "note", label: "Note", emoji: "📝", color: "no" },
-  { key: "reminder", label: "Reminder", emoji: "🔔", color: "rm" },
-  { key: "goal", label: "Goal", emoji: "🎯", color: "go" },
+  { key: "expense", label: "Expense", color: "ex" },
+  { key: "income", label: "Income", color: "in" },
+  { key: "transfer", label: "Transfer", color: "tr" },
+  { key: "task", label: "Task", color: "tk" },
+  { key: "note", label: "Note", color: "no" },
+  { key: "reminder", label: "Reminder", color: "rm" },
+  { key: "goal", label: "Goal", color: "go" },
 ];
 
 export default function QuickAdd({ open, onClose, onSelect }) {

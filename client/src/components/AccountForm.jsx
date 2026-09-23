@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { api } from "../api/client.js";
 import { useToast } from "../context/ToastContext.jsx";
 import { Sheet, Button, Field, ChipItem } from "./UI.jsx";
+import { AccountTypeIcon } from "./CatIcon.jsx";
 
 const ACC_TYPES = [
-  { value: "cash", label: "Cash 💵" },
-  { value: "bank", label: "Bank 🏦" },
-  { value: "card", label: "Card 💳" },
-  { value: "investment", label: "Investment 📈" },
+  { value: "cash", label: "Cash" },
+  { value: "bank", label: "Bank" },
+  { value: "card", label: "Card" },
+  { value: "investment", label: "Investment" },
 ];
 
 export default function AccountForm({ open, onClose, account, onSuccess }) {
@@ -70,7 +71,7 @@ export default function AccountForm({ open, onClose, account, onSuccess }) {
       <Field label="Type">
         <div className="chip-grid">
           {ACC_TYPES.map((t) => (
-            <ChipItem key={t.value} active={type === t.value} onClick={() => setType(t.value)} label={t.label} />
+            <ChipItem key={t.value} active={type === t.value} onClick={() => setType(t.value)} icon={<AccountTypeIcon type={t.value} size={20} />} label={t.label} />
           ))}
         </div>
       </Field>

@@ -4,6 +4,7 @@ import { useData } from "../context/DataContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import { Sheet, Button, Field, MoneyInput, Segmented, ChipItem } from "./UI.jsx";
 import { toDateInput } from "../utils/format.js";
+import CatIcon from "./CatIcon.jsx";
 
 const FREQ = [
   { value: "daily", label: "Daily" },
@@ -130,7 +131,7 @@ export default function RecurringForm({ open, onClose, item, onSuccess }) {
       <Field label="Category">
         <div className="chip-grid">
           {cats.map((c) => (
-            <ChipItem key={c._id} active={categoryId === c._id} onClick={() => setCategoryId(c._id)} emoji={c.emoji} label={c.name} />
+            <ChipItem key={c._id} active={categoryId === c._id} onClick={() => setCategoryId(c._id)} icon={<CatIcon category={c} size={20} />} label={c.name} />
           ))}
         </div>
       </Field>
