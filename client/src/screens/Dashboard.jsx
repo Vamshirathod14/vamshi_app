@@ -7,6 +7,7 @@ import { useData } from "../context/DataContext.jsx";
 import { useToast } from "../context/ToastContext.jsx";
 import Layout from "../components/Layout.jsx";
 import QuickAdd from "../components/QuickAdd.jsx";
+import QuickAccess from "../components/QuickAccess.jsx";
 import CatIcon from "../components/CatIcon.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
 import GoalForm from "../components/GoalForm.jsx";

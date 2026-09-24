@@ -50,6 +50,7 @@ export function createApp() {
             "https://pagead2.googlesyndication.com",
             "https://*.googlesyndication.com",
             "https://www.googletagmanager.com",
+            "https://*.adtrafficquality.google",
           ],
           imgSrc: [
             "'self'",
@@ -73,6 +74,7 @@ export function createApp() {
             "https://*.googleapis.com",
             "https://*.googlesyndication.com",
             "https://*.google",
+            "https://*.adtrafficquality.google",
           ],
         },
       },
