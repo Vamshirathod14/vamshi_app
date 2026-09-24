@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
-import { api } from "../api/client.js";
+import { api, refreshSession } from "../api/client.js";
 
 const AuthContext = createContext(null);
 
@@ -15,8 +15,11 @@ export function AuthProvider({ children }) {
       if (gen !== genRef.current) return;
       setUser(data.user);
     } catch {
+      // Access token expired — try the long-lived refresh cookie so a
+      // returning user is silently logged back in (no login screen).
+      const restored = await refreshSession();
       if (gen !== genRef.current) return;
-      setUser(null);
+      setUser(restored);
     } finally {
       if (gen === genRef.current) setLoading(false);
     }

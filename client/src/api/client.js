@@ -60,6 +60,23 @@ async function attemptRefresh() {
   return refreshing;
 }
 
+// Restore a session from the long-lived refresh cookie (Instagram-style:
+// sign in once, and returning to the app silently logs you back in).
+// Returns the user object, or null when the refresh cookie is gone/expired.
+export async function refreshSession() {
+  try {
+    const res = await fetch(`${BASE}/api/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.user || null;
+  } catch {
+    return null;
+  }
+}
+
 export const api = {
   get: (path) => request(path),
   post: (path, body) => request(path, { method: "POST", body }),
