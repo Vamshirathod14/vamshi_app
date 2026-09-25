@@ -58,10 +58,13 @@ export const env = {
     process.env.COOKIE_SECURE === "true" ||
     (process.env.NODE_ENV === "production" && process.env.COOKIE_SECURE !== "false"),
   cookieSameSite: process.env.COOKIE_SAME_SITE || "lax",
-  // Partitioned (CHIPS): required for cross-site deployments (e.g. frontend and API on
-  // separate domains/subdomains under a public suffix, like *.onrender.com) where browsers
-  // block third-party cookies. Use "true" only when the frontend origin differs from the API origin.
-  cookiePartitioned: process.env.COOKIE_PARTITIONED === "true",
+  // Partitioned (CHIPS): only for cross-site deployments (frontend and API on
+  // separate public-suffix hosts). In production Vamshi is served same-origin
+  // by the server, so we explicitly keep this false and do not reintroduce the
+  // old split-subdomain workaround.
+  cookiePartitioned: process.env.NODE_ENV === "production"
+    ? false
+    : process.env.COOKIE_PARTITIONED === "true",
   clientOrigin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
   bootstrap: {
     name: process.env.BOOTSTRAP_NAME || "Me",

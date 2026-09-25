@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, ChevronRight, Plus, Lightbulb, Coins, PartyPopper, Banknote, ArrowRightLeft } from "lucide-react";
+import { Bell, Plus, Coins, PartyPopper, ArrowUp, ArrowDown, ArrowRightLeft, Calendar, Target, Sparkles } from "lucide-react";
 import { api } from "../api/client.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useData } from "../context/DataContext.jsx";
@@ -8,7 +8,6 @@ import { useToast } from "../context/ToastContext.jsx";
 import Layout from "../components/Layout.jsx";
 import QuickAdd from "../components/QuickAdd.jsx";
 import QuickAccess from "../components/QuickAccess.jsx";
-import CatIcon from "../components/CatIcon.jsx";
 import TransactionForm from "../components/TransactionForm.jsx";
 import GoalForm from "../components/GoalForm.jsx";
 import TaskForm from "../components/TaskForm.jsx";
@@ -17,6 +16,7 @@ import ReminderForm from "../components/ReminderForm.jsx";
 import { Skeleton, EmptyState, Button, Card } from "../components/UI.jsx";
 import { AdBanner } from "../components/AdBanner.jsx";
 import InstallBanner from "../components/InstallBanner.jsx";
+import NotifPrompt from "../components/NotifPrompt.jsx";
 import { formatINR, greeting, formatMonthYear, timeLabel, toDateInput, timeAgo } from "../utils/format.js";
 
 export default function Dashboard() {
@@ -98,14 +98,14 @@ export default function Dashboard() {
         </div>
 
         <InstallBanner />
-
+        <NotifPrompt />
         <div className="dash-top">
           <div className="balance-card">
             <div className="balance-label">Total Balance</div>
             <div className="balance-amount">{formatINR(data.totalBalance)}</div>
             <div className="balance-actions">
-              <Button variant="" onClick={() => openForm("expense")}>+ Expense</Button>
-              <Button variant="" onClick={() => openForm("income")}>+ Income</Button>
+              <Button variant="" icon={<Plus size={16} style={{ color: "var(--accent)" }} />} onClick={() => openForm("expense")}>Expense</Button>
+              <Button variant="" icon={<ArrowUp size={16} style={{ color: "var(--green)" }} />} onClick={() => openForm("income")}>Income</Button>
               <Button variant="" onClick={() => navigate("/transactions")}>All Transactions</Button>
             </div>
           </div>
@@ -154,8 +154,12 @@ export default function Dashboard() {
             <Card style={{ padding: "6px 16px" }}>
               {data.upcomingPayments.map((p, i) => (
                 <div key={p.id} className="row" style={{ padding: "12px 0", borderBottom: i < data.upcomingPayments.length - 1 ? "1px solid var(--border)" : "none" }}>
-                  <div className="chip sm" style={{ background: p.type === "income" ? "var(--green-soft)" : "var(--red-soft)" }}>
-                    {p.type === "income" ? "💹" : "📅"}
+                  <div className="chip sm" style={{ background: p.type === "income" ? "var(--green-soft)" : "var(--accent-soft)" }}>
+                    {p.type === "income" ? (
+                      <ArrowUp size={16} style={{ color: "var(--green)" }} />
+                    ) : (
+                      <Calendar size={16} style={{ color: "var(--accent)" }} />
+                    )}
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 600, fontSize: 14.5 }}>{p.description}</div>
@@ -197,11 +201,11 @@ export default function Dashboard() {
               >
                 <div className="chip sm" style={{ background: t.type === "income" ? "var(--green-soft)" : t.type === "transfer" ? "var(--accent-soft)" : "var(--bg-sunken)" }}>
                   {t.type === "income" ? (
-                    <Banknote size={16} />
+                    <ArrowUp size={16} style={{ color: "var(--green)" }} />
                   ) : t.type === "transfer" ? (
                     <ArrowRightLeft size={16} />
                   ) : (
-                    <CatIcon category={t.categoryId} size={16} />
+                    <ArrowDown size={16} style={{ color: "var(--accent)" }} />
                   )}
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -249,7 +253,7 @@ export default function Dashboard() {
 
         {/* smart insights */}
         <div className="insight-strip">
-          <Lightbulb size={16} />
+          <Sparkles size={16} style={{ color: "var(--violet)" }} />
           <span>
             {Number(data.month.savings) >= 0
               ? `You're saving ${formatINR(data.month.savings)} this ${formatMonthYear(new Date())}.`
@@ -289,7 +293,7 @@ export default function Dashboard() {
               {data.goals.map((g, i) => (
                 <div key={g.id} style={{ marginTop: i ? 16 : 0 }}>
                   <div className="hstack" style={{ marginBottom: 8 }}>
-                    <div className="chip sm"><CatIcon category={g} size={15} /></div>
+                    <div className="chip sm" style={{ background: "var(--amber-soft)" }}><Target size={15} style={{ color: "var(--amber)" }} /></div>
                     <div style={{ flex: 1, fontWeight: 600, fontSize: 14.5 }}>{g.name}</div>
                     <div className="small muted">{g.percent}%</div>
                   </div>

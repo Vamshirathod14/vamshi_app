@@ -5,8 +5,8 @@ import {
   StickyNote,
   Bell,
   Wallet,
-  Repeat,
-  PiggyBank,
+  CalendarClock,
+  ChartPie,
   Settings,
   Database,
   BellRing,
@@ -29,8 +29,8 @@ const groups = [
     items: [
       { to: "/transactions", icon: ArrowRightLeft, color: "var(--accent)", title: "Transactions" },
       { to: "/accounts", icon: Wallet, color: "var(--accent)", title: "Accounts" },
-      { to: "/budgets", icon: PiggyBank, color: "var(--accent)", title: "Budgets" },
-      { to: "/recurring", icon: Repeat, color: "var(--red)", title: "Recurring" },
+      { to: "/budgets", icon: ChartPie, color: "var(--green)", title: "Budgets" },
+      { to: "/recurring", icon: CalendarClock, color: "var(--accent)", title: "Recurring" },
     ],
   },
   {

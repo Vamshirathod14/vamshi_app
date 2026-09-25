@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext.jsx";
 import { DataProvider } from "./context/DataContext.jsx";
 import { ToastProvider } from "./context/ToastContext.jsx";
 import AlarmSiren from "./components/AlarmSiren.jsx";
+import UpdateBanner from "./components/UpdateBanner.jsx";
 
 const Login = lazy(() => import("./screens/Login.jsx"));
 const Register = lazy(() => import("./screens/Register.jsx"));
@@ -65,9 +66,9 @@ function PremiumFeatures() {
 }
 
 function Router() {
-  const { user, loading } = useAuth();
+  const { user, checking } = useAuth();
 
-  if (loading) {
+  if (checking) {
     return (
       <div className="auth-wrap">
         <div className="skeleton" style={{ width: 240, height: 40, borderRadius: 12 }} />
@@ -142,6 +143,7 @@ export default function App() {
     <ToastProvider>
       <AuthProvider>
         <Router />
+        <UpdateBanner />
         <AlarmSiren />
       </AuthProvider>
     </ToastProvider>

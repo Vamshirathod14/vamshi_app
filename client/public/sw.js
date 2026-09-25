@@ -1,4 +1,4 @@
-const CACHE = "liv-push-v1";
+const CACHE = "liv-push-v2";
 const SHELL = [
   "/",
   "/index.html",
